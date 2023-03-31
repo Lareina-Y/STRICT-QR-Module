@@ -2,6 +2,7 @@ package strict.query;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import strict.ca.usask.cs.srlab.strict.config.StaticData;
 import strict.text.normalizer.TextNormalizer;
 import strict.utility.BugReportLoader;
@@ -73,6 +74,33 @@ public class SearchQueryProvider {
 			
 			String queryLine = bugID + "\t" + suggestedQuery;
 			queries.add(queryLine);
+			System.out.println("Log: " + queryLine);
+		}
+		return queries;
+	}
+
+	public HashMap<Integer, String> provideSearchQueriesInHashMap() {
+		HashMap<Integer, String> queries = new HashMap<>();
+		for (int bugID : this.selectedBugs) {
+			String bugReport = BugReportLoader.loadBugReport(repoName, bugID);
+			String title = BugReportLoader.loadBugReportTitle(repoName, bugID);
+
+			SearchTermProvider provider = new SearchTermProvider(repoName, bugID, title, bugReport);
+			String suggestedKeywords = provider.provideSearchQuery(scoreKey);
+			String suggestedQuery = new String(suggestedKeywords);
+
+			if (StaticData.ADD_CODE_ELEM) {
+				String codetokens = getCamelCaseQuery(bugReport);
+				suggestedQuery += "\t" + codetokens;
+			}
+			if (StaticData.ADD_TITLE) {
+				String titletokens = getNormalizedTitle(title);
+				suggestedQuery += "\t" + titletokens;
+			}
+
+			String queryLine = bugID + "\t" + suggestedQuery;
+			System.out.println("Log: " + scoreKey + " " + queryLine);
+			queries.put(bugID, suggestedQuery);
 		}
 		return queries;
 	}

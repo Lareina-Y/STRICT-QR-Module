@@ -10,7 +10,11 @@ import org.jgrapht.DirectedGraph;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleDirectedWeightedGraph;
+import strict.ca.usask.cs.srlab.strict.config.StaticData;
 import strict.query.QueryToken;
+import strict.query.SearchTermProvider;
+import strict.utility.BugReportLoader;
+import strict.utility.MiscUtility;
 
 public class WordNetworkMaker {
 
@@ -247,6 +251,28 @@ public class WordNetworkMaker {
 	}
 	
 	public static void main(String[] args) {
-		// main method
+		// TODO Auto-generated method stub
+//		ArrayList<String> sentences = new ArrayList<>();
+//		sentences
+//				.add("Closing the ECF Buddy List view cause chat room disconnect");
+//		sentences
+//				.add("If you close the ECF Buddy List view, and then try and type in a chat room you were connected to the following errors are thrown:");
+//
+//		String title = "[search] Custom search results not shown hierarchically in the java search results view";
+
+		String repoName = "eclipse.jdt.ui";
+		StaticData.ADD_CODE_ELEM=false;
+		StaticData.ADD_TITLE=true;
+
+		String bugReport = BugReportLoader.loadBugReport(repoName, 303705);
+		String title = BugReportLoader.loadBugReportTitle(repoName, 303705);
+		SearchTermProvider provider = new SearchTermProvider(title, bugReport);
+		ArrayList<String> sentences = provider.getSentences();
+		MiscUtility.showItems(sentences);
+
+		WordNetworkMaker maker = new WordNetworkMaker(sentences);
+		DirectedGraph<String, DefaultEdge> graph = maker.createWordNetwork();
+		HashMap<String, QueryToken> sortedTokendb = maker.getTokenDictionary(false);
+		maker.visualizeWordGraph(sortedTokendb, title);
 	}
 }

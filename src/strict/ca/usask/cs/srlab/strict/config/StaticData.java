@@ -3,7 +3,12 @@ package strict.ca.usask.cs.srlab.strict.config;
 public class StaticData {
 
 	// public final attributes
-	public static String HOME_DIR = "C:\\MyWorks\\MyResearch\\STRICT\\experiment\\STRICT-Replication-Package";
+//	public static String HOME_DIR = "C:\\MyWorks\\MyResearch\\STRICT\\experiment\\STRICT-Replication-Package";
+	public static String HOME_DIR = "/Users/shiwenyang/DalCS/Honours/STRICT-Replication-Package";
+
+	public static String WORD_VECTOR_FILE = HOME_DIR + "/GloVe/glove.6B/glove.6B.100d.txt";
+	public static double SIMILARITY_THRESHOLD = 0.3; // [-1, 1]
+	public static boolean ADD_SIMRANK_SCORE = true;
 
 	public static String INDEX_FOLDER = HOME_DIR + "/lucene/index-method";
 	public static String CORPUS_FOLDER = HOME_DIR + "/corpus/norm-method";

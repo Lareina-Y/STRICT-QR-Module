@@ -52,4 +52,9 @@ public class GraphUtility {
 		POSNetworkMaker wnMaker = new POSNetworkMaker(sentences);
 		return wnMaker.createWeightedPOSNetwork();
 	}
+
+	public static DirectedGraph<String, DefaultEdge> getSimilarityNetwork(ArrayList<String> sentences) {
+		SimilarityNetworkMaker snMaker = new SimilarityNetworkMaker(sentences);
+		return snMaker.createSimilarityNetwork();
+	}
 }
