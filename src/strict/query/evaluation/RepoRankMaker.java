@@ -90,7 +90,7 @@ public class RepoRankMaker {
 		ContentWriter.appendContent(this.rankFile, "System: " + repoName + "\n");
 		ContentWriter.appendContent(this.rankFile, "#Id\tTextRank + POSRank\tTextRank + POSRank + SimRank\tTextRank + POSRank - SimRank");
 		ContentWriter.appendContent(this.rankFile, ranks);
-		System.out.println("Repo Saved: " + repoName);
+		System.out.println("Repo Saved: " + repoName + "_" + StaticData.SIMILARITY_THRESHOLD);
 	}
 
 }
