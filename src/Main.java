@@ -11,6 +11,7 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 
+        // 'i' represent the SIMILARITY_THRESHOLD which wants to be tested
         for (double i = 0.2; i < 0.3; i += 0.1) {
 
             String repoName = "eclipse.pde.ui";

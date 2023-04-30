@@ -1,1 +1,0 @@
-logger abbreviation class options pattern
