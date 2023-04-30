@@ -13,6 +13,10 @@ Please check the  [**replication package**](https://github.com/masud-technope/ST
 
 Getting Started
 ---------------------
+
+- Update the HOME_DIR path in StaticData.java
+- Running the code in Main.java
+
 ```java
 String repoName = "eclipse.jdt.debug";
 		ArrayList<Integer> selectedBugs = SelectedBugs.loadSelectedBugs(repoName);
