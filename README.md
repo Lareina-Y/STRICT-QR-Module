@@ -8,13 +8,14 @@ the baseline queries (i.e., preprocessed version of a request text) from 44%--63
 
 Experimental Data
 ---------------------
-Please check the  [**replication package**](https://github.com/masud-technope/STRICT-Replication-Package) for more details.
+Please check the  [**replication package**](https://github.com/Lareina-Y/STRICT-Replication-Package/tree/TPSR_v1) for more details.
 
 
 Getting Started
 ---------------------
 
 - Update the HOME_DIR path in StaticData.java
+- Download [**'glove.6B.100d.txt'**](https://nlp.stanford.edu/projects/glove/) and store under 'STRICT-Replication-Package/GloVe/glove.6B'
 - Running the code in Main.java
 
 ```java
