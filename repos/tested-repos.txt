@@ -1,0 +1,6 @@
+ecf
+eclipse.jdt.core
+eclipse.jdt.debug
+eclipse.jdt.ui
+eclipse.pde.ui
+tomcat70
