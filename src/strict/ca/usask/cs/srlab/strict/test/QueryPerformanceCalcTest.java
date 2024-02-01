@@ -11,13 +11,14 @@ public class QueryPerformanceCalcTest {
 
 	@Test
 	public void testQueryPerformanceAllRepos() {
-		ArrayList<String> repos = ContentLoader.getAllLinesOptList("./repos/repos.txt");
+		ArrayList<String> repos = ContentLoader.getAllLinesOptList("./repos/tested-repos.txt");
 
 		MethodResultRankMgr.matchClass = false;
 		QueryPerformanceCalc.useHQB = false;
 		QueryPerformanceCalc.useLQB = false;
 
-		String approachFolder = "proposed-STRICT";
+		String approachFolder = "Lareina";
+//		String approachFolder = "Proposed-STRICT";
 		// String approachFolder = "Rocchio";
 
 		/** use the baseline ***/
@@ -29,18 +30,29 @@ public class QueryPerformanceCalcTest {
 
 		int[] hits = { 10, 50, 100 };
 
+		boolean addTitle = false;
+		System.out.println("AddTitle: " + addTitle);
+
 		for (int hit : hits) {
 
 			for (String repoName : repos) {
-				String resultKey = "STRICT-TRC-10-title";
-				//String resultKey = "STRICT-best-query-dec23-8pm";
+				String resultKey = "STRICT-TPSR-10-title-0.7";
+//				String resultKey = "STRICT-TPR-10-title";
+//				String resultKey = "STRICT-best-query-dec23-8pm";
 
-				new QueryPerformanceCalc(repoName, resultKey, approachFolder).getQueryPerformance(hit);
+				new QueryPerformanceCalc(repoName, resultKey, approachFolder, addTitle).getQueryPerformance(hit);
 			}
 
-			System.out.println(QueryPerformanceCalc.sumTopKAcc / repos.size() + ", "
-					+ QueryPerformanceCalc.sumAP / repos.size() + ", " + QueryPerformanceCalc.sumRR / repos.size());
-			
+//			System.out.println(QueryPerformanceCalc.sumTopKAcc / repos.size() + ", "
+//					+ QueryPerformanceCalc.sumAP / repos.size() + ", " + QueryPerformanceCalc.sumRR / repos.size());
+
+			System.out.println(
+					"Hit=" + hit + ":\t" +
+					QueryPerformanceCalc.sumAP / repos.size() * 100 + "%\t" +
+							QueryPerformanceCalc.sumRR / repos.size() * 100 + "%\t" +
+							QueryPerformanceCalc.sumTopKAcc / repos.size() * 100 + "%"
+			);
+
 			QueryPerformanceCalc.sumTopKAcc = 0;
 			QueryPerformanceCalc.sumAP = 0;
 			QueryPerformanceCalc.sumRR = 0;

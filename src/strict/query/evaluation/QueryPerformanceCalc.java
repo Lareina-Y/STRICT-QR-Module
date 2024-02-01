@@ -39,7 +39,9 @@ public class QueryPerformanceCalc {
 	public static boolean useBaseline = false;
 	public static boolean useScanniello = false;
 
-	public QueryPerformanceCalc(String repoName, String resultKey, String approachFolder) {
+	boolean addTitle;
+
+	public QueryPerformanceCalc(String repoName, String resultKey, String approachFolder, Boolean addTitle) {
 		this.repoName = repoName;
 		this.approachQueryFile = StaticData.HOME_DIR + "/" + approachFolder + "/query/" + repoName + "/" + resultKey
 				+ ".txt";
@@ -55,13 +57,21 @@ public class QueryPerformanceCalc {
 			this.selectedBugs = SelectedBugs.loadSelectedBugs(repoName);
 		}
 
+		this.addTitle = addTitle;
+
 		this.RRList = new ArrayList<>();
 		this.APList = new ArrayList<>();
-		this.queryMap = loadQueries(this.approachQueryFile);
+		this.queryMap = loadQueries(this.approachQueryFile, addTitle);
 	}
 
-	protected HashMap<Integer, String> loadQueries(String queryFile) {
-		HashMap<Integer, String> tempMap = QueryLoader.loadQuery(queryFile);
+	protected HashMap<Integer, String> loadQueries(String queryFile, boolean addTitle) {
+		HashMap<Integer, String> tempMap;
+		if (addTitle) {
+			tempMap = QueryLoader.loadQuery(queryFile);
+		} else {
+			tempMap = QueryLoader.loadQueryWithoutTitle(queryFile);
+		}
+
 		HashMap<Integer, String> myQueryMap = new HashMap<Integer, String>();
 		for (int bugID : this.selectedBugs) {
 			if (tempMap.containsKey(bugID)) {

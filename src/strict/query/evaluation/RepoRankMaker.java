@@ -85,12 +85,15 @@ public class RepoRankMaker {
 	}
 
 	public void saveQE(ArrayList<String> ranks) {
-		ContentWriter.writeContent(this.rankFile, "StaticData.ADD_TITLE: " + StaticData.ADD_TITLE + " | ");
-		ContentWriter.appendContent(this.rankFile, "SIMILARITY_THRESHOLD: " + StaticData.SIMILARITY_THRESHOLD + " | ");
-		ContentWriter.appendContent(this.rankFile, "System: " + repoName + "\n");
-		ContentWriter.appendContent(this.rankFile, "#Id\tTextRank + POSRank\tTextRank + POSRank + SimRank\tTextRank + POSRank - SimRank");
-		ContentWriter.appendContent(this.rankFile, ranks);
-		System.out.println("Repo Saved: " + repoName + "_" + StaticData.SIMILARITY_THRESHOLD);
+//		ContentWriter.writeContent(this.rankFile, "StaticData.ADD_TITLE: " + StaticData.ADD_TITLE + " | ");
+//		ContentWriter.appendContent(this.rankFile, "SIMILARITY_THRESHOLD: " + StaticData.SIMILARITY_THRESHOLD + " | ");
+//		ContentWriter.appendContent(this.rankFile, "System: " + repoName + "\n");
+//		ContentWriter.appendContent(this.rankFile, "#Id\tTextRank + POSRank\tTextRank + POSRank + SimRank\tTextRank + POSRank - SimRank");
+//		ContentWriter.appendContent(this.rankFile, ranks);
+//		System.out.println("Repo Saved: " + repoName + "_" + StaticData.SIMILARITY_THRESHOLD);
+
+		ContentWriter.writeContent(this.rankFile, ranks);
+		System.out.println("Repo:" + repoName);
 	}
 
 }
