@@ -62,8 +62,14 @@ public class StackGraph extends JApplet {
 		this.maxHeight = maxHeight;
 		this.toptokens=toptokens;
 	}
-	
-	
+
+	public StackGraph(SimpleDirectedWeightedGraph<String, DefaultWeightedEdge> stackgraph, int maxWidth, int maxHeight)
+	{
+		this.stackgraph = stackgraph;
+		this.maxWidth = maxWidth;
+		this.maxHeight = maxHeight;
+	}
+
 	public void initWG()
 	{
 		//init the weighted graph

@@ -79,6 +79,12 @@ public class MiscUtility {
 			} else if (type.equals("PR")) {
 				if (qtoken.posRankScore > maxScore)
 					maxScore = qtoken.posRankScore;
+			} else if (type.equals("SR")) {
+				if (qtoken.simRankScore > maxScore)
+					maxScore = qtoken.simRankScore;
+			} else if (type.equals("BTR")) {
+				if (qtoken.bTextRankScore > maxScore)
+					maxScore = qtoken.bTextRankScore;
 			} else if (type.equals("TS")) {
 				if (qtoken.totalScore > maxScore)
 					maxScore = qtoken.totalScore;
@@ -91,6 +97,10 @@ public class MiscUtility {
 				qtoken.textRankScore = qtoken.textRankScore / maxScore;
 			} else if (type.equals("PR")) {
 				qtoken.posRankScore = qtoken.posRankScore / maxScore;
+			} else if (type.equals("SR")) {
+				qtoken.simRankScore = qtoken.simRankScore / maxScore;
+			} else if (type.equals("BTR")) {
+				qtoken.bTextRankScore = qtoken.bTextRankScore / maxScore;
 			} else if (type.equals("TS")) {
 				qtoken.totalScore = qtoken.totalScore / maxScore;
 			}

@@ -32,68 +32,6 @@ public class MyItemSorter {
 
 	}
 
-	public static List<Map.Entry<String, QueryToken>> sortQTokensByTR(
-			HashMap<String, QueryToken> qTokenMap) {
-		// code for sorting the hash map
-		List<Map.Entry<String, QueryToken>> list = new LinkedList<>(
-				qTokenMap.entrySet());
-		list.sort(new Comparator<Map.Entry<String, QueryToken>>() {
-
-			@Override
-			public int compare(Entry<String, QueryToken> e1,
-					Entry<String, QueryToken> e2) {
-				// TODO Auto-generated method stub
-				QueryToken t1 = e1.getValue();
-				Double v1 = new Double(t1.textRankScore);
-				QueryToken t2 = e2.getValue();
-				Double v2 = new Double(t2.textRankScore);
-				return v2.compareTo(v1);
-			}
-		});
-		return list;
-	}
-
-	public static List<Map.Entry<String, QueryToken>> sortQTokensByPOSR(
-			HashMap<String, QueryToken> qTokenMap) {
-		// code for sorting the hash map
-		List<Map.Entry<String, QueryToken>> list = new LinkedList<>(
-				qTokenMap.entrySet());
-		list.sort(new Comparator<Map.Entry<String, QueryToken>>() {
-			@Override
-			public int compare(Entry<String, QueryToken> e1,
-					Entry<String, QueryToken> e2) {
-				// TODO Auto-generated method stub
-				QueryToken t1 = e1.getValue();
-				Double v1 = new Double(t1.posRankScore);
-				QueryToken t2 = e2.getValue();
-				Double v2 = new Double(t2.posRankScore);
-				return v2.compareTo(v1);
-			}
-		});
-		return list;
-	}
-
-	public static List<Map.Entry<String, QueryToken>> sortQTokensBySR(
-			HashMap<String, QueryToken> qTokenMap) {
-		// code for sorting the hash map
-		List<Map.Entry<String, QueryToken>> list = new LinkedList<>(
-				qTokenMap.entrySet());
-		list.sort(new Comparator<Map.Entry<String, QueryToken>>() {
-
-			@Override
-			public int compare(Entry<String, QueryToken> e1,
-												 Entry<String, QueryToken> e2) {
-				// TODO Auto-generated method stub
-				QueryToken t1 = e1.getValue();
-				Double v1 = new Double(t1.simRankScore);
-				QueryToken t2 = e2.getValue();
-				Double v2 = new Double(t2.simRankScore);
-				return v2.compareTo(v1);
-			}
-		});
-		return list;
-	}
-
 	public static List<Map.Entry<String, QueryToken>> sortQTokensByBorda(
 			HashMap<String, QueryToken> qTokenMap) {
 		// code for sorting the hash map
@@ -139,10 +77,15 @@ public class MyItemSorter {
 					v1 = t1.posRankScore;
 					v2 = t2.posRankScore;
 					break;
-				case "TRC":
-					v1 = t1.coreRankScore;
-					v2 = t2.coreRankScore;
+				case "SR":
+					v1 = t1.simRankScore;
+					v2 = t2.simRankScore;
 					break;
+				case "BTR":
+					v1 = t1.bTextRankScore;
+					v2 = t2.bTextRankScore;
+					break;
+				case "TRC":
 				case "PRC":
 					v1 = t1.coreRankScore;
 					v2 = t2.coreRankScore;

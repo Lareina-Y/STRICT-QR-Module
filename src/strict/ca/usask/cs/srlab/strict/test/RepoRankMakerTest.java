@@ -34,31 +34,25 @@ public class RepoRankMakerTest {
     @Test
     public void testRepoRankMaker() {
 
-//        ArrayList<String> repos = ContentLoader.getAllLinesOptList("./repos/tested-repos.txt");
-        String repoName = "eclipse.jdt.debug";
+        String repoName = "tomcat70";
 
-//        for (String repoName : repos) {
-//            System.out.println("Log " + repoName);
-            Boolean addTitle = true;
+        Boolean addTitle = true;
 
-//            String resultKey = "STRICT-TPR-10-title";
-//            String resultKeyWithoutTitle = "STRICT-TPR-10";
-            String resultKey = "STRICT-TPSR-10-title-0.6";
-            String resultKeyWithoutTitle = "STRICT-TPSR-10-0.6";
+//        String resultKey = "STRICT-TPR-10-title";
+//        String resultKeyWithoutTitle = "STRICT-TPR-10";
+        String resultKey = "STRICT-TPBR-10-title-0.2";
+        String resultKeyWithoutTitle = "STRICT-TPBR-10-0.2";
 
-            String approachQueryFile = StaticData.HOME_DIR + "/Lareina/query/" + repoName + "/" + resultKey
-                    + ".txt";
-            String storedFile = StaticData.HOME_DIR + "/Lareina/rank/" + repoName
-                    + "/" + (addTitle? resultKey: resultKeyWithoutTitle)
-                    + ".txt";
-            HashMap<Integer, String> queryMap = loadQueries(approachQueryFile, repoName, addTitle);
+        String approachQueryFile = StaticData.HOME_DIR + "/Lareina/query/" + repoName + "/" + resultKey
+                + ".txt";
+        String storedFile = StaticData.HOME_DIR + "/Lareina/rank/" + repoName
+                + "/" + (addTitle? resultKey: resultKeyWithoutTitle)
+                + ".txt";
+        HashMap<Integer, String> queryMap = loadQueries(approachQueryFile, repoName, addTitle);
 
-            RepoRankMaker repoRankMaker = new RepoRankMaker(repoName, queryMap);
-            ArrayList<String> ranks = repoRankMaker.collectQE();
-            repoRankMaker.setRankFile(storedFile);
-            repoRankMaker.saveQE(ranks);
-//        }
-
-
+        RepoRankMaker repoRankMaker = new RepoRankMaker(repoName, queryMap);
+        ArrayList<String> ranks = repoRankMaker.collectQE();
+        repoRankMaker.setRankFile(storedFile);
+        repoRankMaker.saveQE(ranks);
     }
 }

@@ -30,21 +30,17 @@ public class QueryPerformanceCalcTest {
 
 		int[] hits = { 10, 50, 100 };
 
-		boolean addTitle = false;
+		boolean addTitle = true;
 		System.out.println("AddTitle: " + addTitle);
 
 		for (int hit : hits) {
 
 			for (String repoName : repos) {
-				String resultKey = "STRICT-TPSR-10-title-0.7";
-//				String resultKey = "STRICT-TPR-10-title";
+				String resultKey = "STRICT-TPBR-10-title-0.4";
 //				String resultKey = "STRICT-best-query-dec23-8pm";
 
 				new QueryPerformanceCalc(repoName, resultKey, approachFolder, addTitle).getQueryPerformance(hit);
 			}
-
-//			System.out.println(QueryPerformanceCalc.sumTopKAcc / repos.size() + ", "
-//					+ QueryPerformanceCalc.sumAP / repos.size() + ", " + QueryPerformanceCalc.sumRR / repos.size());
 
 			System.out.println(
 					"Hit=" + hit + ":\t" +

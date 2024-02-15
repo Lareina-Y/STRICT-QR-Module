@@ -9,17 +9,13 @@ import org.jgrapht.DirectedGraph;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleDirectedWeightedGraph;
 import qd.model.prediction.sampling.BestQueryPredictorSampled;
+import strict.graph.*;
 import strict.stopwords.StopWordManager;
 import strict.text.normalizer.TextNormalizer;
 import strict.utility.ItemSorter;
 import strict.utility.MiscUtility;
 import strict.utility.MyItemSorter;
 import strict.ca.usask.cs.srlab.strict.config.StaticData;
-import strict.graph.GraphUtility;
-import strict.graph.KCoreScoreProvider;
-import strict.graph.POSRankManager;
-import strict.graph.TextRankManager;
-import strict.graph.SimilarityRankManager;
 import strict.stemmer.WordNormalizer;
 
 public class SearchTermProvider {
@@ -39,6 +35,8 @@ public class SearchTermProvider {
 	DirectedGraph<String, DefaultEdge> textGraph;
 	DirectedGraph<String, DefaultEdge> posGraph;
 	DirectedGraph<String, DefaultEdge> simGraph;
+	SimpleDirectedWeightedGraph<String, DefaultWeightedEdge> bTextGraph;
+	HashMap<String, Double> bTextBiasWeights;
 	SimpleDirectedWeightedGraph<String, DefaultWeightedEdge> wtextGraph;
 	SimpleDirectedWeightedGraph<String, DefaultWeightedEdge> wposGraph;
 	ArrayList<String> sentences;
@@ -55,10 +53,11 @@ public class SearchTermProvider {
 		this.bugReport = bugReport;
 		this.sentences = getAllSentences();
 		this.textGraph = GraphUtility.getWordNetwork(sentences);
-		this.wtextGraph = GraphUtility.getWeightedWordNetwork(sentences);
+//		this.wtextGraph = GraphUtility.getWeightedWordNetwork(sentences);
 		this.posGraph = GraphUtility.getPOSNetwork(sentences);
-		this.wposGraph = GraphUtility.getWeightedPOSNetwork(sentences);
-		this.simGraph = GraphUtility.getSimilarityNetwork(sentences);
+//		this.wposGraph = GraphUtility.getWeightedPOSNetwork(sentences);
+		this.simGraph = GraphUtility.getSimilarityNetwork(repository, bugID);
+		setBiasedTextNetwork(repository, bugID);
 	}
 
 	public SearchTermProvider(String title, String bugReport) {
@@ -69,6 +68,12 @@ public class SearchTermProvider {
 
 	public SearchTermProvider(ArrayList<String> expandedCCTokens) {
 		this.textGraph = GraphUtility.getWordNetwork(expandedCCTokens);
+	}
+
+	public void setBiasedTextNetwork(String repoName, int bugID) {
+		BiasedTextNetworkMaker btnMaker = new BiasedTextNetworkMaker(repoName, bugID);
+		this.bTextGraph = btnMaker.createWeightedBiasedTextNetwork();
+		this.bTextBiasWeights = btnMaker.biasWeights;
 	}
 
 	protected HashMap<String, QueryToken> getQueryCoreRankScoresTRC() {
@@ -110,6 +115,12 @@ public class SearchTermProvider {
 		return manager.getTextRank();
 	}
 
+	public HashMap<String, QueryToken> getBTextRank() {
+		HashMap<String, QueryToken> tokendb = GraphUtility.initBTTokensDB(this.bTextGraph, this.bTextBiasWeights);
+		BiasedTextRankManager manager = new BiasedTextRankManager(this.bTextGraph, tokendb);
+		return manager.getBTextRank();
+	}
+
 	protected HashMap<String, QueryToken> getPOSRank() {
 		HashMap<String, QueryToken> tokendb = GraphUtility.initializeTokensDB(this.posGraph);
 		POSRankManager manager = new POSRankManager(this.posGraph, tokendb);
@@ -135,6 +146,7 @@ public class SearchTermProvider {
 		HashMap<String, QueryToken> textRankMap = new HashMap<>();
 		HashMap<String, QueryToken> posRankMap = new HashMap<>();
 		HashMap<String, QueryToken> simRankMap = new HashMap<>();
+		HashMap<String, QueryToken> bTextRankMap = new HashMap<>();
 
 		HashMap<String, QueryToken> coreRankMapTR = new HashMap<>();
 		HashMap<String, QueryToken> coreRankMapPR = new HashMap<>();
@@ -145,6 +157,10 @@ public class SearchTermProvider {
 		case "TR":
 			textRankMap = getTextRank();
 			combineddb = transferScores(textRankMap, "TR");
+			break;
+		case "BTR":
+			bTextRankMap = getBTextRank();
+			combineddb = transferScores(bTextRankMap, "BTR");
 			break;
 		case "PR":
 			posRankMap = getPOSRank();
@@ -157,14 +173,20 @@ public class SearchTermProvider {
 		case "TPR":
 			textRankMap = getTextRank();
 			posRankMap = getPOSRank();
-			combineddb = getCombinedBordaScores(textRankMap, posRankMap);
+			combineddb = getCombinedTPRScores(textRankMap, posRankMap);
 			break;
 		case "TPSR":
 		case "TPMSR":
 			textRankMap = getTextRank();
 			posRankMap = getPOSRank();
 			simRankMap = getSimilarityRank();
-			combineddb = getCombinedBordaScores(textRankMap, posRankMap,simRankMap);
+			combineddb = getCombinedTPSRScores(textRankMap, posRankMap, simRankMap);
+			break;
+		case "TPBR":
+			textRankMap = getTextRank();
+			posRankMap = getPOSRank();
+			bTextRankMap = getBTextRank();
+			combineddb = getCombinedTPBRScores(textRankMap, posRankMap, bTextRankMap);
 			break;
 		case "TRC":
 			coreRankMapTR = getQueryCoreRankScoresTRC();
@@ -174,7 +196,6 @@ public class SearchTermProvider {
 			coreRankMapPR = getQueryCoreRankScoresPRC();
 			combineddb = transferScores(coreRankMapPR, "PRC");
 			break;
-
 		case "TPRC":
 			coreRankMapTR = getQueryCoreRankScoresTRC();
 			coreRankMapPR = getQueryCoreRankScoresPRC();
@@ -193,88 +214,83 @@ public class SearchTermProvider {
 		return (1 - (double) index / N);
 	}
 
-	protected HashMap<String, Double> getCombinedBordaScores(HashMap<String, QueryToken> tokenRankMap,
-			HashMap<String, QueryToken> posRankMap) {
+	protected HashMap<String, Double> getCombinedTPRScores(HashMap<String, QueryToken> textRankMap,
+																													HashMap<String, QueryToken> posRankMap) {
 		// extracting final query terms
-		List<Map.Entry<String, QueryToken>> trSorted = MyItemSorter.sortQTokensByTR(tokenRankMap);
-		List<Map.Entry<String, QueryToken>> prSorted = MyItemSorter.sortQTokensByPOSR(posRankMap);
+		List<Map.Entry<String, QueryToken>> trSorted = MyItemSorter.sortQTokensByScoreKey(textRankMap, "TR");
+		List<Map.Entry<String, QueryToken>> prSorted = MyItemSorter.sortQTokensByScoreKey(posRankMap, "PR");
 
 		HashMap<String, Double> combineddb = new HashMap<>();
-		for (int i = 0; i < trSorted.size(); i++) {
-			double doi = getDOI(i, trSorted.size());
-			String key = trSorted.get(i).getKey();
-			if (!combineddb.containsKey(key)) {
-				combineddb.put(key, doi * StaticData.alpha);
-			} else {
-				double score = combineddb.get(key) + doi * StaticData.alpha;
-				combineddb.put(key, score);
-			}
-		}
-
-		for (int i = 0; i < prSorted.size(); i++) {
-			double doi = getDOI(i, prSorted.size());
-			String key = prSorted.get(i).getKey();
-			// System.out.println(key);
-			if (!combineddb.containsKey(key)) {
-				combineddb.put(key, doi * StaticData.beta);
-			} else {
-				double score = combineddb.get(key) + doi * StaticData.beta;
-				combineddb.put(key, score);
-			}
-		}
-
+		combineddb = combinedScores(combineddb, trSorted, "TR");
+		combineddb = combinedScores(combineddb, prSorted, "PR");
 		return combineddb;
 	}
 
-	protected HashMap<String, Double> getCombinedBordaScores(HashMap<String, QueryToken> tokenRankMap,
-																													 HashMap<String, QueryToken> posRankMap, HashMap<String, QueryToken> simRankMap) {
+	protected HashMap<String, Double> getCombinedTPSRScores(HashMap<String, QueryToken> tokenRankMap,
+																													HashMap<String, QueryToken> posRankMap, HashMap<String, QueryToken> simRankMap) {
 		// extracting final query terms
-		List<Map.Entry<String, QueryToken>> trSorted = MyItemSorter.sortQTokensByTR(tokenRankMap);
-		List<Map.Entry<String, QueryToken>> prSorted = MyItemSorter.sortQTokensByPOSR(posRankMap);
-		List<Map.Entry<String, QueryToken>> srSorted = MyItemSorter.sortQTokensBySR(simRankMap);
+		List<Map.Entry<String, QueryToken>> trSorted = MyItemSorter.sortQTokensByScoreKey(tokenRankMap, "TR");
+		List<Map.Entry<String, QueryToken>> prSorted = MyItemSorter.sortQTokensByScoreKey(posRankMap, "PR");
+		List<Map.Entry<String, QueryToken>> srSorted = MyItemSorter.sortQTokensByScoreKey(simRankMap, "SR");
 
 		HashMap<String, Double> combineddb = new HashMap<>();
-		for (int i = 0; i < trSorted.size(); i++) {
-			double doi = getDOI(i, trSorted.size());
-			String key = trSorted.get(i).getKey();
-			if (!combineddb.containsKey(key)) {
-				combineddb.put(key, doi * StaticData.alpha);
-			} else {
-				double score = combineddb.get(key) + doi * StaticData.alpha;
-				combineddb.put(key, score);
-			}
+		combineddb = combinedScores(combineddb, trSorted, "TR");
+		combineddb = combinedScores(combineddb, prSorted, "PR");
+		combineddb = combinedScores(combineddb, srSorted, "SR");
+		return combineddb;
+	}
+
+	protected HashMap<String, Double> combinedScores(HashMap<String, Double> combineddb,
+																List<Map.Entry<String, QueryToken>> dbSorted, String scoreKey) {
+		double parameter = 1.0;
+		switch (scoreKey) {
+			case "TR":
+				parameter = StaticData.alpha;
+				break;
+			case "PR":
+				parameter = StaticData.beta;
+				break;
+			case "SR":
+				parameter = StaticData.gamma;
+				break;
+			case "BTR":
+				parameter = StaticData.delta;
+				break;
 		}
 
-		for (int i = 0; i < prSorted.size(); i++) {
-			double doi = getDOI(i, prSorted.size());
-			String key = prSorted.get(i).getKey();
+		for (int i = 0; i < dbSorted.size(); i++) {
+			double doi = getDOI(i, dbSorted.size());
+			String key = dbSorted.get(i).getKey();
 			if (!combineddb.containsKey(key)) {
-				combineddb.put(key, doi * StaticData.beta);
+				if (!StaticData.ADD_SIMRANK_SCORE && scoreKey.equals("SR")) {
+					combineddb.put(key, - doi * parameter);
+				} else {
+					combineddb.put(key, doi * parameter);
+				}
 			} else {
-				double score = combineddb.get(key) + doi * StaticData.beta;
+				double score = 0.0;
+				if (!StaticData.ADD_SIMRANK_SCORE && scoreKey.equals("SR")) {
+					score = combineddb.get(key) - doi * parameter;
+				} else {
+					score = combineddb.get(key) + doi * parameter;
+				}
 				combineddb.put(key, score);
 			}
 		}
+		return combineddb;
+	}
 
-		for (int i = 0; i < srSorted.size(); i++) {
-			double doi = getDOI(i, srSorted.size());
-			String key = srSorted.get(i).getKey();
-			if (!combineddb.containsKey(key)) {
-				if (StaticData.ADD_SIMRANK_SCORE) {
-					combineddb.put(key, doi * StaticData.gamma);
-				} else {
-					combineddb.put(key, - doi * StaticData.gamma);
-				}
-			} else {
-				double score;
-				if (StaticData.ADD_SIMRANK_SCORE) {
-					score = combineddb.get(key) + doi * StaticData.gamma;
-				} else {
-					score = combineddb.get(key) - doi * StaticData.gamma;
-				}
-				combineddb.put(key, score);
-			}
-		}
+	protected HashMap<String, Double> getCombinedTPBRScores(HashMap<String, QueryToken> textRankMap,
+																													 HashMap<String, QueryToken> posRankMap, HashMap<String, QueryToken> bTextRankMap) {
+		// extracting final query terms
+		List<Map.Entry<String, QueryToken>> trSorted = MyItemSorter.sortQTokensByScoreKey(textRankMap, "TR");
+		List<Map.Entry<String, QueryToken>> prSorted = MyItemSorter.sortQTokensByScoreKey(posRankMap, "PR");
+		List<Map.Entry<String, QueryToken>> btrSorted = MyItemSorter.sortQTokensByScoreKey(bTextRankMap, "BTR");
+
+		HashMap<String, Double> combineddb = new HashMap<>();
+		combineddb = combinedScores(combineddb, trSorted, "TR");
+		combineddb = combinedScores(combineddb, prSorted, "PR");
+		combineddb = combinedScores(combineddb, btrSorted, "BTR");
 
 		return combineddb;
 	}
@@ -308,6 +324,8 @@ public class SearchTermProvider {
 			case "TR":
 				tempMap.put(key, scoreMap.get(key).textRankScore);
 				break;
+			case "BTR":
+				tempMap.put(key, scoreMap.get(key).bTextRankScore);
 			case "PR":
 				tempMap.put(key, scoreMap.get(key).posRankScore);
 				break;
@@ -328,6 +346,7 @@ public class SearchTermProvider {
 		return tempMap;
 	}
 
+	// Similar to combinedScores(), but this method not include parameters
 	protected HashMap<String, Double> gatherScores(List<Map.Entry<String, QueryToken>> sortedList,
 			HashMap<String, Double> scoreMap) {
 		for (int i = 0; i < sortedList.size(); i++) {

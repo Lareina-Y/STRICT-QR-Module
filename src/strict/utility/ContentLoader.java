@@ -32,7 +32,25 @@ public class ContentLoader {
 		}
 		return fileContent;
 	}
-	
+
+	// Include the black line
+	public static String[] loadSentenceSet(String fileName) {
+		// code for loading the file name
+		String fileContent = new String();
+		try {
+			File f = new File(fileName);
+			BufferedReader bufferedReader = new BufferedReader(
+					new FileReader(f));
+			while (bufferedReader.ready()) {
+				String line = bufferedReader.readLine().trim();
+				fileContent += line + "\n";
+			}
+			bufferedReader.close();
+		} catch (Exception ex) {
+			// handle the exception
+		}
+		return fileContent.split("\n\n");
+	}
 
 	public static String[] getAllLines(String fileName) {
 		// reading items as array

@@ -20,12 +20,13 @@ public class GraphUtility {
 		return tokendb;
 	}
 
-	public static HashMap<String, QueryToken> initializeTokensDB(
-			SimpleDirectedWeightedGraph<String, DefaultWeightedEdge> myGraph) {
+	public static HashMap<String, QueryToken> initBTTokensDB(
+			SimpleDirectedWeightedGraph<String, DefaultWeightedEdge> myGraph, HashMap<String, Double> bTextBiasWeights) {
 		HashMap<String, QueryToken> tokendb = new HashMap<>();
 		for (String node : myGraph.vertexSet()) {
 			QueryToken qtoken = new QueryToken();
 			qtoken.token = node;
+			qtoken.bTextRankBiasWeight = bTextBiasWeights.get(node);
 			tokendb.put(node, qtoken);
 		}
 		return tokendb;
@@ -53,8 +54,8 @@ public class GraphUtility {
 		return wnMaker.createWeightedPOSNetwork();
 	}
 
-	public static DirectedGraph<String, DefaultEdge> getSimilarityNetwork(ArrayList<String> sentences) {
-		SimilarityNetworkMaker snMaker = new SimilarityNetworkMaker(sentences);
+	public static DirectedGraph<String, DefaultEdge> getSimilarityNetwork(String repoName, int bugID) {
+		SimilarityNetworkMaker snMaker = new SimilarityNetworkMaker(repoName, bugID);
 		return snMaker.createSimilarityNetwork();
 	}
 }

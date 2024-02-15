@@ -5,6 +5,7 @@ import org.jgrapht.DirectedGraph;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import strict.query.QueryToken;
 import strict.query.SearchTermProvider;
+import strict.query.TokenVector;
 import strict.utility.*;
 import strict.ca.usask.cs.srlab.strict.config.StaticData;
 
@@ -13,52 +14,62 @@ import java.util.*;
 
 public class SimilarityNetworkMaker {
 
-    ArrayList<String> sentences;
+//    ArrayList<String> sentences;
+    String[] sentences;
     public DirectedGraph<String, DefaultEdge> graph;
     HashMap<String, QueryToken> tokendb;
 
-    public SimilarityNetworkMaker(ArrayList<String> sentences) {
+//    public SimilarityNetworkMaker(ArrayList<String> sentences) {
+//        // initialization of items
+//        this.sentences = sentences;
+//        this.graph = new DefaultDirectedGraph<>(DefaultEdge.class);
+//        this.tokendb = new HashMap<>();
+//    }
+
+    public SimilarityNetworkMaker(String repoName, int bugID) {
         // initialization of items
-        this.sentences = sentences;
         this.graph = new DefaultDirectedGraph<>(DefaultEdge.class);
         this.tokendb = new HashMap<>();
+        this.sentences = BugReportLoader.loadEmbedReport(repoName, bugID);
     }
 
     public DirectedGraph<String, DefaultEdge> createSimilarityNetwork() {
-        // developing the similarity network
-
-        GloveWordVectors gloveWordVectors = new GloveWordVectors();
+//        GloveWordVectors gloveWordVectors = new GloveWordVectors();
 
         // create the links in a subset of keywords (each sentence)
-        for (String sentence : this.sentences) {
-            String[] tokens = sentence.split("\\W+"); // "\\s+"
+//        for (String sentence : this.sentences) {
+        for (String sentence: this.sentences) {
+            TokenVector[] tokens = Helper.sentence2TokenVectors(sentence);
+//            String[] tokens = sentence.split("\\W+"); // "\\s+"
             for (int i = 0; i < tokens.length; i++) {
-                String currentToken = tokens[i];
+                TokenVector currentToken = tokens[i];
                 for (int k = i+1; k < tokens.length; k++) {
-                    String comparedToken = tokens[k];
+                    TokenVector comparedToken = tokens[k];
 
                     // now add the graph nodes
-                    if (!graph.containsVertex(currentToken)) {
-                        graph.addVertex(currentToken);
+                    if (!graph.containsVertex(currentToken.token)) {
+                        graph.addVertex(currentToken.token);
                     }
-                    if (!graph.containsVertex(comparedToken) && !comparedToken.isEmpty()) {
-                        graph.addVertex(comparedToken);
+                    if (!graph.containsVertex(comparedToken.token) && !comparedToken.token.isEmpty()) {
+                        graph.addVertex(comparedToken.token);
                     }
 
-                    if(!(currentToken.equals(comparedToken))) {
+                    if(!(currentToken.token.equals(comparedToken.token))) {
                         // calculate the Cosine Similarity
-                        double[] vector1 = gloveWordVectors.getWordVector(currentToken.toLowerCase());
-                        double[] vector2 = gloveWordVectors.getWordVector(comparedToken.toLowerCase());
+//                        double[] vector1 = gloveWordVectors.getWordVector(currentToken.toLowerCase());
+//                        double[] vector2 = gloveWordVectors.getWordVector(comparedToken.toLowerCase());
+
+                        double[] vector1 = currentToken.vector;
+                        double[] vector2 = comparedToken.vector;
 
                         if (vector1 != null && vector2 != null) {
                             double CSScore = CosineSimilarity.calculateCS(vector1, vector2);
-                            // System.out.println(currentToken + " " + comparedToken + " " + CSScore);
 
                             // adding edges to the graph
                             if (CSScore > StaticData.SIMILARITY_THRESHOLD) {
-                                if (!graph.containsEdge(currentToken, comparedToken)) {
-                                    graph.addEdge(currentToken, comparedToken);
-                                    graph.addEdge(comparedToken, currentToken);
+                                if (!graph.containsEdge(currentToken.token, comparedToken.token)) {
+                                    graph.addEdge(currentToken.token, comparedToken.token);
+                                    graph.addEdge(comparedToken.token, currentToken.token);
                                 }
                             }
                         }
@@ -148,9 +159,9 @@ public class SimilarityNetworkMaker {
 
     public static void main(String[] args) {
         // main method
-        // ArrayList<String> sentences = new ArrayList<>();
-        // sentences.add("Closing the ECF Buddy List view cause chat room disconnect");
-        // sentences.add("If you close the ECF Buddy List view, and then try and type in a chat room you were connected to the following errors are thrown:");
+//        ArrayList<String> sentences = new ArrayList<>();
+//        sentences.add("Closing the ECF Buddy List view cause chat room disconnect");
+//        sentences.add("If you close the ECF Buddy List view, and then try and type in a chat room you were connected to the following errors are thrown:");
 //        SimilarityNetworkMaker maker = new SimilarityNetworkMaker(sentences);
 //        DirectedGraph<String, DefaultEdge> graph = maker.createSimilarityNetwork();
 //        maker.showEdges();
@@ -168,7 +179,7 @@ public class SimilarityNetworkMaker {
         System.out.println("======= show sentences =======");
         MiscUtility.showItems(sentences);
 
-        SimilarityNetworkMaker maker = new SimilarityNetworkMaker(sentences);
+        SimilarityNetworkMaker maker = new SimilarityNetworkMaker(repoName, 303705);
         DirectedGraph<String, DefaultEdge> graph = maker.createSimilarityNetwork();
 //        maker.showEdges();
 
@@ -180,7 +191,7 @@ public class SimilarityNetworkMaker {
 
 
         HashMap<String, QueryToken> simRankMap = provider.getSimilarityRank();
-        List<Map.Entry<String, QueryToken>> srTokendb = MyItemSorter.sortQTokensBySR(simRankMap);
+        List<Map.Entry<String, QueryToken>> srTokendb = MyItemSorter.sortQTokensByScoreKey(simRankMap, "SR");
 
         LinkedHashMap<String, QueryToken> sortedTokendb = new LinkedHashMap<>();
         for (Map.Entry<String, QueryToken> entry : srTokendb) {

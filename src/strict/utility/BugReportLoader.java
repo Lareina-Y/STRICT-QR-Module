@@ -27,4 +27,10 @@ public class BugReportLoader {
 		}
 		return desc.trim();
 	}
+
+	public static String[] loadEmbedReport(String repoName, int bugID) {
+		String brFile = StaticData.HOME_DIR + "/ChangeReqs-Normalized-Emb/" + repoName + "/" + bugID + ".txt";
+		String[] sentences = ContentLoader.loadSentenceSet(brFile);
+		return sentences;
+	}
 }

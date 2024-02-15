@@ -1,34 +1,36 @@
 package strict.ca.usask.cs.srlab.strict.test;
 
-import java.util.ArrayList;
 import org.junit.Test;
 import strict.ca.usask.cs.srlab.strict.config.StaticData;
 import strict.query.SearchQueryProvider;
-import strict.query.evaluation.RepoRankMaker;
 import strict.utility.ContentWriter;
 import strict.utility.MiscUtility;
 import strict.utility.SelectedBugs;
+
+import java.util.*;
 
 public class SearchQueryProviderTest {
 
 	@Test
 	public void testProvideSearchQueries() {
 
-		String repoName = "eclipse.jdt.ui";
+		String repoName = "eclipse.jdt.core";
 		ArrayList<Integer> selectedBugs = SelectedBugs.loadSelectedBugs(repoName);
 
-		String scoreKey = "TPR";
+		String scoreKey = "TPBR";
 		StaticData.ADD_SIMRANK_SCORE = true;
-		StaticData.SIMILARITY_THRESHOLD = 0.5;
+		StaticData.SIMILARITY_THRESHOLD = 0.4;
 
 		StaticData.ADD_CODE_ELEM=false;
-		StaticData.ADD_TITLE=false;
+		StaticData.ADD_TITLE=true;
 		ArrayList<String> queries = new SearchQueryProvider(repoName, scoreKey, selectedBugs).provideSearchQueries();
 		MiscUtility.showItems(queries);
 
+		List<String> simThresholdRankList = Arrays.asList("SR", "BTR", "TPSR", "TPMSR", "TPBR");
+
 		String resultKey = "STRICT-" + scoreKey + "-10"
 				+ (StaticData.ADD_TITLE ? "-title" : "")
-				+ (scoreKey.equals("TPSR") ? "-" + StaticData.SIMILARITY_THRESHOLD : "");
+				+ (simThresholdRankList.contains(scoreKey) ? "-" + StaticData.SIMILARITY_THRESHOLD : "");
 		String approachQueryFile = StaticData.HOME_DIR + "/Lareina/query/" + repoName + "/" + resultKey
 				+ ".txt";
 
