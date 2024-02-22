@@ -16,12 +16,13 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 
-        ArrayList<String> repos = ContentLoader.getAllLinesOptList("./repos/tested-repos.txt");
+//        ArrayList<String> repos = ContentLoader.getAllLinesOptList("./repos/tested-repos.txt");
 
-        for (String repoName : repos) {
+//        for (String repoName : repos) {
+            String repoName = "eclipse.jdt.core";
             ArrayList<Integer> selectedBugs = SelectedBugs.loadSelectedBugs(repoName);
 
-            String scoreKey = "TPTR";
+            String scoreKey = "TPR";
             StaticData.ADD_SIMRANK_SCORE = true;
             StaticData.SIMILARITY_THRESHOLD = 0.4;
 
@@ -40,6 +41,12 @@ public class Main {
 
             ContentWriter.writeContent(approachQueryFile, queries);
             System.out.println("Repo:" + repoName + " | " + approachQueryFile);
-        }
+//        }
+
+//        // Print the number of queries for each repo
+//        for (String repoName : repos) {
+//            ArrayList<Integer> selectedBugs = SelectedBugs.loadSelectedBugs(repoName);
+//            System.out.println(repoName + "\t" + selectedBugs.size());
+//        }
     }
 }

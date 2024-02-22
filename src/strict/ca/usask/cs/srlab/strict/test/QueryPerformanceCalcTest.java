@@ -36,7 +36,7 @@ public class QueryPerformanceCalcTest {
 		for (int hit : hits) {
 
 			for (String repoName : repos) {
-				String resultKey = "STRICT-TR-10-title";
+				String resultKey = "STRICT-TPR-10-title";
 //				String resultKey = "STRICT-best-query-dec23-8pm";
 
 				new QueryPerformanceCalc(repoName, resultKey, approachFolder, addTitle).getQueryPerformance(hit);
