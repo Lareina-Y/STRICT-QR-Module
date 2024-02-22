@@ -85,6 +85,10 @@ public class MyItemSorter {
 					v1 = t1.bTextRankScore;
 					v2 = t2.bTextRankScore;
 					break;
+				case "PTR":
+					v1 = t1.positRankScore;
+					v2 = t2.positRankScore;
+					break;
 				case "TRC":
 				case "PRC":
 					v1 = t1.coreRankScore;

@@ -73,11 +73,13 @@ public class WordNetworkMaker {
 				}
 
 				// adding edges to the graph
+				// TODO: add && !currentToken.equals(previousToken)
 				if (!previousToken.isEmpty())
 					if (!graph.containsEdge(currentToken, previousToken)) {
 						graph.addEdge(currentToken, previousToken);
 					}
 
+				// TODO: add && !currentToken.equals(nextToken)
 				if (!nextToken.isEmpty())
 					if (!graph.containsEdge(currentToken, nextToken)) {
 						graph.addEdge(currentToken, nextToken);

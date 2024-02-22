@@ -21,7 +21,7 @@ public class Main {
         for (String repoName : repos) {
             ArrayList<Integer> selectedBugs = SelectedBugs.loadSelectedBugs(repoName);
 
-            String scoreKey = "TPBR";
+            String scoreKey = "TPTR";
             StaticData.ADD_SIMRANK_SCORE = true;
             StaticData.SIMILARITY_THRESHOLD = 0.4;
 

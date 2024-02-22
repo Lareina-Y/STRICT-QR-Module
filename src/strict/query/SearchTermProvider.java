@@ -36,7 +36,9 @@ public class SearchTermProvider {
 	DirectedGraph<String, DefaultEdge> posGraph;
 	DirectedGraph<String, DefaultEdge> simGraph;
 	SimpleDirectedWeightedGraph<String, DefaultWeightedEdge> bTextGraph;
+	SimpleDirectedWeightedGraph<String, DefaultWeightedEdge> positGraph;
 	HashMap<String, Double> bTextBiasWeights;
+	HashMap<String, Double> positBiasWeights;
 	SimpleDirectedWeightedGraph<String, DefaultWeightedEdge> wtextGraph;
 	SimpleDirectedWeightedGraph<String, DefaultWeightedEdge> wposGraph;
 	ArrayList<String> sentences;
@@ -56,8 +58,9 @@ public class SearchTermProvider {
 //		this.wtextGraph = GraphUtility.getWeightedWordNetwork(sentences);
 		this.posGraph = GraphUtility.getPOSNetwork(sentences);
 //		this.wposGraph = GraphUtility.getWeightedPOSNetwork(sentences);
-		this.simGraph = GraphUtility.getSimilarityNetwork(repository, bugID);
-		setBiasedTextNetwork(repository, bugID);
+//		this.simGraph = GraphUtility.getSimilarityNetwork(repository, bugID);
+//		setBiasedTextNetwork(repository, bugID);
+		setPositionNetwork(sentences);
 	}
 
 	public SearchTermProvider(String title, String bugReport) {
@@ -74,6 +77,12 @@ public class SearchTermProvider {
 		BiasedTextNetworkMaker btnMaker = new BiasedTextNetworkMaker(repoName, bugID);
 		this.bTextGraph = btnMaker.createWeightedBiasedTextNetwork();
 		this.bTextBiasWeights = btnMaker.biasWeights;
+	}
+
+	public void setPositionNetwork(ArrayList<String> sentences) {
+		PositionNetworkMaker positNMaker = new PositionNetworkMaker(sentences);
+		this.positGraph = positNMaker.createWeightedPositNetwork();
+		this.positBiasWeights = positNMaker.positBiasWeights;
 	}
 
 	protected HashMap<String, QueryToken> getQueryCoreRankScoresTRC() {
@@ -121,6 +130,12 @@ public class SearchTermProvider {
 		return manager.getBTextRank();
 	}
 
+	public HashMap<String, QueryToken> getPositRank() {
+		HashMap<String, QueryToken> tokendb = GraphUtility.initPTTokensDB(this.positGraph, this.positBiasWeights);
+		PositionRankManager manager = new PositionRankManager(this.positGraph, tokendb);
+		return manager.getPositionRank();
+	}
+
 	protected HashMap<String, QueryToken> getPOSRank() {
 		HashMap<String, QueryToken> tokendb = GraphUtility.initializeTokensDB(this.posGraph);
 		POSRankManager manager = new POSRankManager(this.posGraph, tokendb);
@@ -147,6 +162,7 @@ public class SearchTermProvider {
 		HashMap<String, QueryToken> posRankMap = new HashMap<>();
 		HashMap<String, QueryToken> simRankMap = new HashMap<>();
 		HashMap<String, QueryToken> bTextRankMap = new HashMap<>();
+		HashMap<String, QueryToken> positRankMap = new HashMap<>();
 
 		HashMap<String, QueryToken> coreRankMapTR = new HashMap<>();
 		HashMap<String, QueryToken> coreRankMapPR = new HashMap<>();
@@ -162,6 +178,10 @@ public class SearchTermProvider {
 			bTextRankMap = getBTextRank();
 			combineddb = transferScores(bTextRankMap, "BTR");
 			break;
+		case "PTR":
+			positRankMap = getPositRank();
+			combineddb = transferScores(positRankMap, "PTR");
+			break;
 		case "PR":
 			posRankMap = getPOSRank();
 			combineddb = transferScores(posRankMap, "PR");
@@ -175,6 +195,11 @@ public class SearchTermProvider {
 			posRankMap = getPOSRank();
 			combineddb = getCombinedTPRScores(textRankMap, posRankMap);
 			break;
+		case "TPTR":
+			textRankMap = getTextRank();
+			positRankMap = getPositRank();
+			combineddb = getCombinedTPTRScores(textRankMap, positRankMap);
+			break;
 		case "TPSR":
 		case "TPMSR":
 			textRankMap = getTextRank();
@@ -187,6 +212,17 @@ public class SearchTermProvider {
 			posRankMap = getPOSRank();
 			bTextRankMap = getBTextRank();
 			combineddb = getCombinedTPBRScores(textRankMap, posRankMap, bTextRankMap);
+			break;
+		case "PTPR":
+			positRankMap = getPositRank();
+			posRankMap = getPOSRank();
+			combineddb = getCombinedPTPRScores(positRankMap, posRankMap);
+			break;
+		case "TPPTR":
+			textRankMap = getTextRank();
+			posRankMap = getPOSRank();
+			positRankMap = getPositRank();
+			combineddb = getCombinedTPPTRScores(textRankMap, posRankMap, positRankMap);
 			break;
 		case "TRC":
 			coreRankMapTR = getQueryCoreRankScoresTRC();
@@ -226,6 +262,30 @@ public class SearchTermProvider {
 		return combineddb;
 	}
 
+	protected HashMap<String, Double> getCombinedTPTRScores(HashMap<String, QueryToken> textRankMap,
+																												 HashMap<String, QueryToken> positRankMap) {
+		// extracting final query terms
+		List<Map.Entry<String, QueryToken>> trSorted = MyItemSorter.sortQTokensByScoreKey(textRankMap, "TR");
+		List<Map.Entry<String, QueryToken>> ptrSorted = MyItemSorter.sortQTokensByScoreKey(positRankMap, "PTR");
+
+		HashMap<String, Double> combineddb = new HashMap<>();
+		combineddb = combinedScores(combineddb, trSorted, "TR");
+		combineddb = combinedScores(combineddb, ptrSorted, "PTR");
+		return combineddb;
+	}
+
+	protected HashMap<String, Double> getCombinedPTPRScores(HashMap<String, QueryToken> positRankMap,
+																												 HashMap<String, QueryToken> posRankMap) {
+		// extracting final query terms
+		List<Map.Entry<String, QueryToken>> ptrSorted = MyItemSorter.sortQTokensByScoreKey(positRankMap, "PTR");
+		List<Map.Entry<String, QueryToken>> prSorted = MyItemSorter.sortQTokensByScoreKey(posRankMap, "PR");
+
+		HashMap<String, Double> combineddb = new HashMap<>();
+		combineddb = combinedScores(combineddb, ptrSorted, "PTR");
+		combineddb = combinedScores(combineddb, prSorted, "PR");
+		return combineddb;
+	}
+
 	protected HashMap<String, Double> getCombinedTPSRScores(HashMap<String, QueryToken> tokenRankMap,
 																													HashMap<String, QueryToken> posRankMap, HashMap<String, QueryToken> simRankMap) {
 		// extracting final query terms
@@ -237,6 +297,20 @@ public class SearchTermProvider {
 		combineddb = combinedScores(combineddb, trSorted, "TR");
 		combineddb = combinedScores(combineddb, prSorted, "PR");
 		combineddb = combinedScores(combineddb, srSorted, "SR");
+		return combineddb;
+	}
+
+	protected HashMap<String, Double> getCombinedTPPTRScores(HashMap<String, QueryToken> tokenRankMap,
+																													HashMap<String, QueryToken> posRankMap, HashMap<String, QueryToken> positRankMap) {
+		// extracting final query terms
+		List<Map.Entry<String, QueryToken>> trSorted = MyItemSorter.sortQTokensByScoreKey(tokenRankMap, "TR");
+		List<Map.Entry<String, QueryToken>> prSorted = MyItemSorter.sortQTokensByScoreKey(posRankMap, "PR");
+		List<Map.Entry<String, QueryToken>> ptrSorted = MyItemSorter.sortQTokensByScoreKey(positRankMap, "PTR");
+
+		HashMap<String, Double> combineddb = new HashMap<>();
+		combineddb = combinedScores(combineddb, trSorted, "TR");
+		combineddb = combinedScores(combineddb, prSorted, "PR");
+		combineddb = combinedScores(combineddb, ptrSorted, "PTR");
 		return combineddb;
 	}
 
@@ -255,6 +329,9 @@ public class SearchTermProvider {
 				break;
 			case "BTR":
 				parameter = StaticData.delta;
+				break;
+			case "PTR":
+				parameter = StaticData.epsilon;
 				break;
 		}
 
@@ -326,6 +403,8 @@ public class SearchTermProvider {
 				break;
 			case "BTR":
 				tempMap.put(key, scoreMap.get(key).bTextRankScore);
+			case "PTR":
+				tempMap.put(key, scoreMap.get(key).positRankScore);
 			case "PR":
 				tempMap.put(key, scoreMap.get(key).posRankScore);
 				break;

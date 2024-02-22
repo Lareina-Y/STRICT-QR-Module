@@ -32,6 +32,18 @@ public class GraphUtility {
 		return tokendb;
 	}
 
+	public static HashMap<String, QueryToken> initPTTokensDB(
+			SimpleDirectedWeightedGraph<String, DefaultWeightedEdge> myGraph, HashMap<String, Double> positBiasWeights) {
+		HashMap<String, QueryToken> tokendb = new HashMap<>();
+		for (String node : myGraph.vertexSet()) {
+			QueryToken qtoken = new QueryToken();
+			qtoken.token = node;
+			qtoken.positRankBiasWeight = positBiasWeights.get(node);
+			tokendb.put(node, qtoken);
+		}
+		return tokendb;
+	}
+
 	public static DirectedGraph<String, DefaultEdge> getWordNetwork(ArrayList<String> sentences) {
 		WordNetworkMaker wnMaker = new WordNetworkMaker(sentences);
 		return wnMaker.createWordNetwork();

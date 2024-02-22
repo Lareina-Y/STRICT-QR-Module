@@ -36,7 +36,7 @@ public class StaticData {
 	public static double beta = 1;// 0.8374424351745824; // PR
 	public static double gamma = 1;// 0.3753504417175002; //SR
 	public static double delta = 1;// STR
-	public static double epsilon = 1;// PR
+	public static double epsilon = 1;// PTR
 
 	public static String ARFF_HEADER_FILE="./qdiff-model/arffheader.txt";
 

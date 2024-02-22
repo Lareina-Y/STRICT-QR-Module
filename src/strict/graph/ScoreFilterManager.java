@@ -47,6 +47,9 @@ public class ScoreFilterManager {
 			case "BTR":
 				score = tokenMap.get(key).bTextRankScore;
 				break;
+			case "PTR":
+					score = tokenMap.get(key).positRankScore;
+					break;
 			case "TRC":
 				score = tokenMap.get(key).coreRankScore;
 				break;
