@@ -18,12 +18,13 @@ public class SearchQueryProviderTest {
 		ArrayList<Integer> selectedBugs = SelectedBugs.loadSelectedBugs(repoName);
 
 		String scoreKey = "TPBR";
+		List<String> scoreKeyList = Arrays.asList("TR", "SR"); // "TR", "PR", "SR", "BTR", "PTR"
 		StaticData.ADD_SIMRANK_SCORE = true;
 		StaticData.SIMILARITY_THRESHOLD = 0.4;
 
 		StaticData.ADD_CODE_ELEM=false;
 		StaticData.ADD_TITLE=true;
-		ArrayList<String> queries = new SearchQueryProvider(repoName, scoreKey, selectedBugs).provideSearchQueries();
+		ArrayList<String> queries = new SearchQueryProvider(repoName, scoreKey, selectedBugs, scoreKeyList).provideSearchQueries();
 		MiscUtility.showItems(queries);
 
 		List<String> simThresholdRankList = Arrays.asList("SR", "BTR", "TPSR", "TPMSR", "TPBR");

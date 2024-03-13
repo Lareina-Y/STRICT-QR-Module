@@ -11,7 +11,7 @@ public class QueryPerformanceCalcTest {
 
 	@Test
 	public void testQueryPerformanceAllRepos() {
-		ArrayList<String> repos = ContentLoader.getAllLinesOptList("./repos/tested-repos.txt");
+		ArrayList<String> repos = ContentLoader.getAllLinesOptList("./repos/repos.txt");
 
 		MethodResultRankMgr.matchClass = false;
 		QueryPerformanceCalc.useHQB = false;
@@ -33,29 +33,39 @@ public class QueryPerformanceCalcTest {
 		boolean addTitle = true;
 		System.out.println("AddTitle: " + addTitle);
 
-		for (int hit : hits) {
+		double[] thresholdList = {0.2, 0.3, 0.4, 0.5, 0.6};
+//		double[] thresholdList = {0.2};
 
-			for (String repoName : repos) {
-				String resultKey = "STRICT-TPR-10-title";
+		String scoreKey = "TSR";
+		System.out.println(scoreKey);
+
+		for (double st : thresholdList) {
+			String resultKey = "STRICT-" + scoreKey + "-10-title" + "-" + st;
+//			String resultKey = "STRICT-TPR-test-10-title";
 //				String resultKey = "STRICT-best-query-dec23-8pm";
 
-				new QueryPerformanceCalc(repoName, resultKey, approachFolder, addTitle).getQueryPerformance(hit);
+			for (int hit : hits) {
+				for (String repoName : repos) {
+					new QueryPerformanceCalc(repoName, resultKey, approachFolder, addTitle).getQueryPerformance(hit);
+				}
+
+				System.out.print(
+//					"Hit=" + hit + ":\t" +
+						QueryPerformanceCalc.sumAP / repos.size() * 100 + "%\t" +
+								QueryPerformanceCalc.sumRR / repos.size() * 100 + "%\t" +
+								QueryPerformanceCalc.sumTopKAcc / repos.size() * 100 + "%"
+								+ "\t"
+				);
+
+				QueryPerformanceCalc.sumTopKAcc = 0;
+				QueryPerformanceCalc.sumAP = 0;
+				QueryPerformanceCalc.sumRR = 0;
+
+				QueryPerformanceCalc.masterHitkList.clear();
+				QueryPerformanceCalc.masterAPList.clear();
+				QueryPerformanceCalc.masterRRList.clear();
 			}
-
-			System.out.println(
-					"Hit=" + hit + ":\t" +
-					QueryPerformanceCalc.sumAP / repos.size() * 100 + "%\t" +
-							QueryPerformanceCalc.sumRR / repos.size() * 100 + "%\t" +
-							QueryPerformanceCalc.sumTopKAcc / repos.size() * 100 + "%"
-			);
-
-			QueryPerformanceCalc.sumTopKAcc = 0;
-			QueryPerformanceCalc.sumAP = 0;
-			QueryPerformanceCalc.sumRR = 0;
-
-			QueryPerformanceCalc.masterHitkList.clear();
-			QueryPerformanceCalc.masterAPList.clear();
-			QueryPerformanceCalc.masterRRList.clear();
+			System.out.println();
 		}
 	}
 }

@@ -3,6 +3,8 @@ package strict.query;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+
 import strict.ca.usask.cs.srlab.strict.config.StaticData;
 import strict.text.normalizer.TextNormalizer;
 import strict.utility.BugReportLoader;
@@ -13,13 +15,15 @@ public class SearchQueryProvider {
 
 	String repoName;
 	String scoreKey;
+	List<String> scoreKeyList;
 	ArrayList<Integer> selectedBugs;
 	String queryOutputFile;
 
-	public SearchQueryProvider(String repoName, String scoreKey, ArrayList<Integer> selectedBugs) {
+	public SearchQueryProvider(String repoName, String scoreKey, ArrayList<Integer> selectedBugs, List<String> scoreKeyList) {
 		this.repoName = repoName;
 		this.scoreKey = scoreKey;
 		this.selectedBugs = selectedBugs;
+		this.scoreKeyList = scoreKeyList;
 	}
 
 	protected void setQueryFile(String fileName) {
@@ -59,8 +63,9 @@ public class SearchQueryProvider {
 			String bugReport = BugReportLoader.loadBugReport(repoName, bugID);
 			String title = BugReportLoader.loadBugReportTitle(repoName, bugID);
 			
-			SearchTermProvider provider = new SearchTermProvider(repoName, bugID, title, bugReport);
-			String suggestedKeywords = provider.provideSearchQuery(scoreKey);
+			SearchTermProvider provider = new SearchTermProvider(repoName, bugID, title, bugReport, scoreKeyList);
+//			String suggestedKeywords = provider.provideSearchQuery(scoreKey);
+			String suggestedKeywords = provider.provideSearchQueryByScoreKeyList(scoreKeyList);
 			String suggestedQuery = new String(suggestedKeywords);
 			
 			if (StaticData.ADD_CODE_ELEM) {
@@ -85,8 +90,9 @@ public class SearchQueryProvider {
 			String bugReport = BugReportLoader.loadBugReport(repoName, bugID);
 			String title = BugReportLoader.loadBugReportTitle(repoName, bugID);
 
-			SearchTermProvider provider = new SearchTermProvider(repoName, bugID, title, bugReport);
-			String suggestedKeywords = provider.provideSearchQuery(scoreKey);
+			SearchTermProvider provider = new SearchTermProvider(repoName, bugID, title, bugReport, scoreKeyList);
+//			String suggestedKeywords = provider.provideSearchQuery(scoreKey);
+			String suggestedKeywords = provider.provideSearchQueryByScoreKeyList(scoreKeyList);
 			String suggestedQuery = new String(suggestedKeywords);
 
 			if (StaticData.ADD_CODE_ELEM) {

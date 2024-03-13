@@ -12,6 +12,7 @@ import qd.model.prediction.sampling.BestQueryPredictorSampled;
 import strict.graph.*;
 import strict.stopwords.StopWordManager;
 import strict.text.normalizer.TextNormalizer;
+import strict.utility.ContentLoader;
 import strict.utility.ItemSorter;
 import strict.utility.MiscUtility;
 import strict.utility.MyItemSorter;
@@ -47,26 +48,44 @@ public class SearchTermProvider {
 		return sentences;
 	}
 
-	public SearchTermProvider(String repository, int bugID, String title, String bugReport) {
+	public SearchTermProvider(String repository, int bugID, String title, String bugReport, List<String> scoreKeyList) {
 		// initialization
 		this.bugID = bugID;
 		this.repository = repository;
 		this.bugtitle = getNormalizeTitle(title);
 		this.bugReport = bugReport;
-		this.sentences = getAllSentences();
-		this.textGraph = GraphUtility.getWordNetwork(sentences);
+		this.sentences = getAllNormalizedSentences(repository, bugID);
+		if (scoreKeyList.contains("TR")){
+			this.textGraph = GraphUtility.getWordNetwork(sentences);
+		}
+		if (scoreKeyList.contains("PR")){
+			this.posGraph = GraphUtility.getPOSNetwork(sentences);
+		}
+		if (scoreKeyList.contains("SR")){
+			this.simGraph = GraphUtility.getSimilarityNetwork(repository, bugID);
+		}
+		if (scoreKeyList.contains("BTR")){
+			setBiasedTextNetwork(repository, bugID);
+		}
+		if (scoreKeyList.contains("PTR")){
+			setPositionNetwork(sentences);
+		}
 //		this.wtextGraph = GraphUtility.getWeightedWordNetwork(sentences);
-		this.posGraph = GraphUtility.getPOSNetwork(sentences);
 //		this.wposGraph = GraphUtility.getWeightedPOSNetwork(sentences);
-//		this.simGraph = GraphUtility.getSimilarityNetwork(repository, bugID);
-//		setBiasedTextNetwork(repository, bugID);
-		setPositionNetwork(sentences);
+	}
+
+	public SearchTermProvider(String repository, int bugID, String title, String bugReport) {
+		this.bugID = bugID;
+		this.repository = repository;
+		this.bugtitle = getNormalizeTitle(title);
+		this.bugReport = bugReport;
+		this.sentences = getAllNormalizedSentences(repository, bugID);
 	}
 
 	public SearchTermProvider(String title, String bugReport) {
 		this.bugtitle = getNormalizeTitle(title);
 		this.bugReport = bugReport;
-		this.sentences = getAllSentences();
+		this.sentences = getAllNormalizedSentences(repository, bugID);
 	}
 
 	public SearchTermProvider(ArrayList<String> expandedCCTokens) {
@@ -114,6 +133,11 @@ public class SearchTermProvider {
 		return textcollector.collectQuerySentences();
 	}
 
+	protected ArrayList<String> getAllNormalizedSentences(String repoName, int bugID) {
+		String brFile = StaticData.HOME_DIR + "/ChangeReqs-Normalized/" + repoName + "/" + bugID + ".txt";
+		return ContentLoader.getAllLinesOptList(brFile);
+	}
+
 	protected String getNormalizeTitle(String title) {
 		return new TextNormalizer().normalizeSimpleDiscardSmallwithOrder(title);
 	}
@@ -156,6 +180,38 @@ public class SearchTermProvider {
 		return this.getQueryCoreRankScoresPRC();
 	}
 
+	public String provideSearchQueryByScoreKeyList(List<String> scoreKeyList) {
+		HashMap<String, Double> combineddb = new HashMap<>();
+
+		for (String scoreKey : scoreKeyList) {
+			HashMap<String, QueryToken> tempMap = new HashMap<>();
+			switch (scoreKey) {
+				case "TR":
+					tempMap = getTextRank();
+					break;
+				case "BTR":
+					tempMap = getBTextRank();
+					break;
+				case "PTR":
+					tempMap = getPositRank();
+					break;
+				case "PR":
+					tempMap = getPOSRank();
+					break;
+				case "SR":
+					tempMap = getSimilarityRank();
+					break;
+				default:
+					break;
+			}
+
+			List<Map.Entry<String, QueryToken>> sortedMap = MyItemSorter.sortQTokensByScoreKey(tempMap, scoreKey);
+			combineddb = combinedScores(combineddb, sortedMap, scoreKey);
+		}
+		return getQueryFinalizedBorda(combineddb);
+	}
+
+	// TODO: Will be removed, use "provideSearchQueryByScoreKeyList" method instead
 	public String provideSearchQuery(String scoreKey) {
 
 		HashMap<String, QueryToken> textRankMap = new HashMap<>();
