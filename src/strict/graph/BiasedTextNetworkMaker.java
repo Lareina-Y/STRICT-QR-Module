@@ -12,6 +12,8 @@ import java.util.*;
 
 public class BiasedTextNetworkMaker {
 
+    String repoName;
+    int bugID;
     double[] titleVector;
     String[] sentences;
     public SimpleDirectedWeightedGraph<String, DefaultWeightedEdge> wgraph;
@@ -20,6 +22,8 @@ public class BiasedTextNetworkMaker {
 
     public BiasedTextNetworkMaker(String repoName, int bugID) {
         // initialization of items
+        this.repoName = repoName;
+        this.bugID = bugID;
         this.wgraph = new SimpleDirectedWeightedGraph<>(DefaultWeightedEdge.class);
         this.tokendb = new HashMap<>();
         this.biasWeights = new HashMap<>();
@@ -29,6 +33,9 @@ public class BiasedTextNetworkMaker {
 
     public SimpleDirectedWeightedGraph<String, DefaultWeightedEdge> createWeightedBiasedTextNetwork() {
         // create the edges in a subset of keywords (each sentence)
+        if (this.sentences.length < 2) {
+            throw new RuntimeException("Sentences length < 2: " + this.sentences.length + " " + repoName + " " + bugID);
+        }
         for (int n = 1; n < this.sentences.length; n++) { // Skip the first sentence (Title)
             TokenVector[] tokens = Helper.sentence2TokenVectors(this.sentences[n]);
             for (int i = 0; i < tokens.length; i++) {

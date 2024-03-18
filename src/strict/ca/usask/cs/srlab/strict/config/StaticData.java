@@ -6,6 +6,8 @@ public class StaticData {
 //	public static String HOME_DIR = "C:\\MyWorks\\MyResearch\\STRICT\\experiment\\STRICT-Replication-Package";
 	public static String HOME_DIR = "/Users/shiwenyang/DalCS/Honours/STRICT-Replication-Package";
 
+	public static String CHANGEREQS_EMB = StaticData.HOME_DIR + "/ChangeReqs-Normalized-Emb/";
+	public static String CHANGEREQS_DEC_EMB = StaticData.HOME_DIR + "/ChangeReqs-Dec-Normalized-Emb/";
 	public static String WORD_VECTOR_FILE = HOME_DIR + "/GloVe/glove.6B/glove.6B.100d.txt";
 	public static double SIMILARITY_THRESHOLD = 0.3; // [0, 1]
 	public static boolean ADD_SIMRANK_SCORE = true;

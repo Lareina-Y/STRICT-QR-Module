@@ -10,7 +10,6 @@ import strict.utility.ContentLoader;
 import strict.utility.ContentWriter;
 import strict.utility.MiscUtility;
 import strict.utility.SelectedBugs;
-import strict.query.evaluation.RepoRankMaker;
 
 public class Main {
 
@@ -21,7 +20,7 @@ public class Main {
         for (String repoName : repos) {
 //            String repoName = "eclipse.jdt.core";
             ArrayList<Integer> selectedBugs = SelectedBugs.loadSelectedBugs(repoName);
-            
+
             String scoreKey = "TSR";
             List<String> scoreKeyList = Arrays.asList("TR", "SR"); // "TR", "PR", "SR", "BTR", "PTR"
             List<String> simThresholdRankList = Arrays.asList("SR", "BTR");
@@ -32,7 +31,7 @@ public class Main {
                     break;
                 }
             }
-
+//          0.1, 0.2, 0.3, 0.4, 0.5, 0.6
             double[] thresholdList = addST ? new double[]{0.2, 0.3, 0.4, 0.5, 0.6}: new double[]{0.2};
             for (double st : thresholdList) { // threshold is from 0.2 to 0.6
                 StaticData.ADD_SIMRANK_SCORE = true;
@@ -45,9 +44,9 @@ public class Main {
                 MiscUtility.showItems(queries);
 
                 String resultKey = "STRICT-" + scoreKey + "-10"
-                        + (StaticData.ADD_TITLE ? "-title" : "")
+                        + (StaticData.ADD_TITLE ? "-title-Word2Vec" : "") //-expandCCWords
                         + (addST ? "-" + StaticData.SIMILARITY_THRESHOLD : "");
-                String approachQueryFile = StaticData.HOME_DIR + "/Lareina/query-v2/" + repoName + "/two/" + resultKey
+                String approachQueryFile = StaticData.HOME_DIR + "/Lareina/query-v3/" + repoName + "/two/" + resultKey
                         + ".txt";
 
                 ContentWriter.writeContent(approachQueryFile, queries);

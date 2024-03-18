@@ -2,7 +2,6 @@ package strict.query;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 import strict.ca.usask.cs.srlab.strict.config.StaticData;
@@ -76,37 +75,20 @@ public class SearchQueryProvider {
 				String titletokens = getNormalizedTitle(title);
 				suggestedQuery += "\t" + titletokens;
 			}
+//			if (StaticData.ADD_TITLE) { //TODO : Test in query-v3
+//				String titletokens = getNormalizedTitle(title);
+//				ArrayList<String> addString = new ArrayList<>();
+//				for (String titleToken : titletokens.split(" ")) {
+//					if (!suggestedQuery.contains(titleToken)) {
+//						addString.add(titleToken);
+//					}
+//				}
+//				suggestedQuery += "\t" + MiscUtility.list2Str(addString);
+//			}
 			
 			String queryLine = bugID + "\t" + suggestedQuery;
 			queries.add(queryLine);
 			System.out.println("Log: " + queryLine);
-		}
-		return queries;
-	}
-
-	public HashMap<Integer, String> provideSearchQueriesInHashMap() {
-		HashMap<Integer, String> queries = new HashMap<>();
-		for (int bugID : this.selectedBugs) {
-			String bugReport = BugReportLoader.loadBugReport(repoName, bugID);
-			String title = BugReportLoader.loadBugReportTitle(repoName, bugID);
-
-			SearchTermProvider provider = new SearchTermProvider(repoName, bugID, title, bugReport, scoreKeyList);
-//			String suggestedKeywords = provider.provideSearchQuery(scoreKey);
-			String suggestedKeywords = provider.provideSearchQueryByScoreKeyList(scoreKeyList);
-			String suggestedQuery = new String(suggestedKeywords);
-
-			if (StaticData.ADD_CODE_ELEM) {
-				String codetokens = getCamelCaseQuery(bugReport);
-				suggestedQuery += "\t" + codetokens;
-			}
-			if (StaticData.ADD_TITLE) {
-				String titletokens = getNormalizedTitle(title);
-				suggestedQuery += "\t" + titletokens;
-			}
-
-			String queryLine = bugID + "\t" + suggestedQuery;
-			System.out.println("Log: " + scoreKey + " " + queryLine);
-			queries.put(bugID, suggestedQuery);
 		}
 		return queries;
 	}

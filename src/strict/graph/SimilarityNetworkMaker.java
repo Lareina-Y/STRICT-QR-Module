@@ -34,7 +34,6 @@ public class SimilarityNetworkMaker {
     }
 
     public DirectedGraph<String, DefaultEdge> createSimilarityNetwork() {
-//        GloveWordVectors gloveWordVectors = new GloveWordVectors();
 
         // create the links in a subset of keywords (each sentence)
 //        for (String sentence : this.sentences) {

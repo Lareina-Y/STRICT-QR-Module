@@ -19,7 +19,7 @@ public class RepoRankMakerTest {
             tempMap = QueryLoader.loadQueryWithoutTitle(queryFile);
         }
 
-        ArrayList<Integer> selectedBugs = SelectedBugs.loadSelectedHQBBugs(repoName);
+        ArrayList<Integer> selectedBugs = SelectedBugs.loadSelectedBugs(repoName);
 
         HashMap<Integer, String> myQueryMap = new HashMap<Integer, String>();
 
@@ -28,25 +28,28 @@ public class RepoRankMakerTest {
                 myQueryMap.put(bugID, tempMap.get(bugID));
             }
         }
-        return tempMap;
+        return myQueryMap;
     }
 
     @Test
     public void testRepoRankMaker() {
 
-        String repoName = "tomcat70";
-
+        String scoreKey = "TPR";
+        String repoName = "eclipse.jdt.debug";
         Boolean addTitle = true;
+        boolean addST = false;
+        double st = 0.2;
 
-//        String resultKey = "STRICT-TPR-10-title";
-//        String resultKeyWithoutTitle = "STRICT-TPR-10";
-        String resultKey = "STRICT-TPBR-10-title-0.2";
-        String resultKeyWithoutTitle = "STRICT-TPBR-10-0.2";
+        String resultKey = "STRICT-" + scoreKey + "-10"
+                + (addTitle ? "-title" : "")
+                + (addST ? "-" + st : "");
+        System.out.println(resultKey);
+//        String resultKey = "STRICT-TPBR-10-title-0.2";
+//        String resultKeyWithoutTitle = "STRICT-TPBR-10-0.2";
 
-        String approachQueryFile = StaticData.HOME_DIR + "/Lareina/query/" + repoName + "/" + resultKey
+        String approachQueryFile = StaticData.HOME_DIR + "/Lareina/query-v2/" + repoName + "/two/" + resultKey
                 + ".txt";
-        String storedFile = StaticData.HOME_DIR + "/Lareina/rank/" + repoName
-                + "/" + (addTitle? resultKey: resultKeyWithoutTitle)
+        String storedFile = StaticData.HOME_DIR + "/Lareina/rank-v2/" + repoName + "/two/" + resultKey
                 + ".txt";
         HashMap<Integer, String> queryMap = loadQueries(approachQueryFile, repoName, addTitle);
 

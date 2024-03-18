@@ -30,6 +30,7 @@ public class NormalizedContentTest {
                 ArrayList<String> normalizedContentList = textcollector.collectQuerySentences();
 
                 String storedFile = StaticData.HOME_DIR + "/ChangeReqs-Normalized/" + repoName + "/" + bugID + ".txt";
+//                String storedFile = StaticData.HOME_DIR + "/ChangeReqs-Dec-Normalized/" + repoName + "/" + bugID + ".txt";
 //                String storedTitleFile = StaticData.HOME_DIR + "/ChangeReqs-Title/" + repoName + "/" + bugID + ".txt";
 
                 ContentWriter.writeContent(storedFile, normalizedContentList);

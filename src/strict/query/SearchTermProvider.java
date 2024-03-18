@@ -75,17 +75,22 @@ public class SearchTermProvider {
 	}
 
 	public SearchTermProvider(String repository, int bugID, String title, String bugReport) {
+		// initialization
 		this.bugID = bugID;
 		this.repository = repository;
 		this.bugtitle = getNormalizeTitle(title);
 		this.bugReport = bugReport;
-		this.sentences = getAllNormalizedSentences(repository, bugID);
+		this.sentences = getAllSentences();
+		this.textGraph = GraphUtility.getWordNetwork(sentences);
+		this.wtextGraph = GraphUtility.getWeightedWordNetwork(sentences);
+		this.posGraph = GraphUtility.getPOSNetwork(sentences);
+		this.wposGraph = GraphUtility.getWeightedPOSNetwork(sentences);
 	}
 
 	public SearchTermProvider(String title, String bugReport) {
 		this.bugtitle = getNormalizeTitle(title);
 		this.bugReport = bugReport;
-		this.sentences = getAllNormalizedSentences(repository, bugID);
+		this.sentences = getAllSentences();
 	}
 
 	public SearchTermProvider(ArrayList<String> expandedCCTokens) {
@@ -534,8 +539,10 @@ public class SearchTermProvider {
 		}
 
 		String queryStr = MiscUtility.list2Str(suggested);
+		//TODO : Test in query-v3
 		String expanded = new WordNormalizer().expandCCWords(queryStr);
 		return new StopWordManager().getRefinedSentence(expanded);
+//		return new StopWordManager().getRefinedSentence(queryStr);
 	}
 
 	public String deliverBestQuery() {

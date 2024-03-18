@@ -39,7 +39,10 @@ public class Helper {
         for (int i = 0; i < tokens.length; i++) {
             String[] tokenAndVector = tokens[i].split("\t");
             String word = tokenAndVector[0];
-            double[] vector = convert2Vector(tokenAndVector[1].split(" "));
+            double[] vector = null;
+            if (tokenAndVector.length > 1) {
+                vector = convert2Vector(tokenAndVector[1].split(" "));
+            }
             TokenVector tokenVector = new TokenVector(word, vector);
             tokenVectors[i] = tokenVector;
         }

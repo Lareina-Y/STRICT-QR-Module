@@ -17,7 +17,7 @@ public class SearchQueryProviderTest {
 		String repoName = "eclipse.jdt.core";
 		ArrayList<Integer> selectedBugs = SelectedBugs.loadSelectedBugs(repoName);
 
-		String scoreKey = "TPBR";
+		String scoreKey = "TPR";
 		List<String> scoreKeyList = Arrays.asList("TR", "SR"); // "TR", "PR", "SR", "BTR", "PTR"
 		StaticData.ADD_SIMRANK_SCORE = true;
 		StaticData.SIMILARITY_THRESHOLD = 0.4;
@@ -35,7 +35,8 @@ public class SearchQueryProviderTest {
 		String approachQueryFile = StaticData.HOME_DIR + "/Lareina/query/" + repoName + "/" + resultKey
 				+ ".txt";
 
-		ContentWriter.writeContent(approachQueryFile, queries);
+//		ContentWriter.writeContent(approachQueryFile, queries);
 		System.out.println("Repo:" + repoName + " | " + approachQueryFile);
+		System.out.println(queries);
 	}
 }
