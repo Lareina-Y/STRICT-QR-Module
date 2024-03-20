@@ -3,8 +3,8 @@ package strict.query.evaluation;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import strict.ca.usask.cs.srlab.strict.config.StaticData;
 import strict.lucenecheck.LuceneSearcher;
+import strict.lucenecheck.MethodResultRankMgr;
 import strict.utility.ContentWriter;
 import strict.utility.QueryLoader;
 import strict.utility.SelectedBugs;
@@ -16,6 +16,8 @@ public class RepoRankMaker {
 	ArrayList<Integer> selectedBugs;
 	String rankFile;
 	String queryFile;
+
+	public int RankSum; // For Fitness function
 	static int tooGood = 0;
 	static boolean matchClasses = false;
 
@@ -37,6 +39,7 @@ public class RepoRankMaker {
 		this.repoName = repoName;
 		this.suggestedQueryMap = queryMap;
 		this.selectedBugs = SelectedBugs.loadSelectedBugs(repoName);
+		this.RankSum = 0;
 	}
 
 	public ArrayList<String> collectQE() {
@@ -52,8 +55,17 @@ public class RepoRankMaker {
 				LuceneSearcher lsearch = new LuceneSearcher(bugID, repoName, suggested.toLowerCase());
 				int qe = lsearch.getFirstGoldRank();
 				ranks.add(bugID + "\t" + qe);
+				if(qe == -1) {
+					this.RankSum += 10000; // TODO: skip or not?
+				} else {
+					this.RankSum += qe;
+				}
 			}
 		}
+
+		// clearing the keys
+		MethodResultRankMgr.keyMap.clear();
+
 		return ranks;
 	}
 
@@ -93,7 +105,7 @@ public class RepoRankMaker {
 //		System.out.println("Repo Saved: " + repoName + "_" + StaticData.SIMILARITY_THRESHOLD);
 
 		ContentWriter.writeContent(this.rankFile, ranks);
-		System.out.println("Repo:" + repoName);
+//		System.out.println("Repo:" + repoName);
 	}
 
 }

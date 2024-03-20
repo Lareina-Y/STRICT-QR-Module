@@ -12,10 +12,7 @@ import qd.model.prediction.sampling.BestQueryPredictorSampled;
 import strict.graph.*;
 import strict.stopwords.StopWordManager;
 import strict.text.normalizer.TextNormalizer;
-import strict.utility.ContentLoader;
-import strict.utility.ItemSorter;
-import strict.utility.MiscUtility;
-import strict.utility.MyItemSorter;
+import strict.utility.*;
 import strict.ca.usask.cs.srlab.strict.config.StaticData;
 import strict.stemmer.WordNormalizer;
 
@@ -82,15 +79,20 @@ public class SearchTermProvider {
 		this.bugReport = bugReport;
 		this.sentences = getAllSentences();
 		this.textGraph = GraphUtility.getWordNetwork(sentences);
-		this.wtextGraph = GraphUtility.getWeightedWordNetwork(sentences);
+//		this.wtextGraph = GraphUtility.getWeightedWordNetwork(sentences);
 		this.posGraph = GraphUtility.getPOSNetwork(sentences);
-		this.wposGraph = GraphUtility.getWeightedPOSNetwork(sentences);
+//		this.wposGraph = GraphUtility.getWeightedPOSNetwork(sentences);
 	}
 
 	public SearchTermProvider(String title, String bugReport) {
 		this.bugtitle = getNormalizeTitle(title);
 		this.bugReport = bugReport;
 		this.sentences = getAllSentences();
+	}
+
+	public SearchTermProvider(String repository, int bugID) {
+		this.bugID = bugID;
+		this.repository = repository;
 	}
 
 	public SearchTermProvider(ArrayList<String> expandedCCTokens) {
@@ -216,6 +218,64 @@ public class SearchTermProvider {
 		return getQueryFinalizedBorda(combineddb);
 	}
 
+	public String provideSearchQueriesByTokenScoreMap(List<String> scoreKeyList) {
+		HashMap<String, Double> combineddb = new HashMap<>();
+		HashMap<String, QueryToken> tokenScoreMap = BugReportLoader.loadTokenScoreMap(repository, bugID);
+
+		for (String key : tokenScoreMap.keySet()) {
+			QueryToken tokenMap = tokenScoreMap.get(key);
+			double sumScore = 0.0;
+			if (scoreKeyList.contains("TR")){
+				sumScore += tokenMap.textRankScore * StaticData.TR_alpha;
+			}
+			if (scoreKeyList.contains("PR")){
+				sumScore += tokenMap.posRankScore * StaticData.PR_beta;
+			}
+			if (scoreKeyList.contains("SR")){
+				sumScore += tokenMap.simRankScore * StaticData.SR_gamma;
+			}
+			if (scoreKeyList.contains("BTR")){
+				sumScore += tokenMap.bTextRankScore * StaticData.BTR_delta;
+			}
+			if (scoreKeyList.contains("PTR")){
+				sumScore += tokenMap.positRankScore * StaticData.PTR_epsilon;
+			}
+			combineddb.put(key, sumScore);
+		}
+		return getQueryFinalizedBorda(combineddb);
+	}
+
+	public HashMap<String, QueryToken> provideTokenScoreMapByScoreKeyList(List<String> scoreKeyList) {
+		HashMap<String, QueryToken> tokenScoreMap = new HashMap<>();
+
+		for (String scoreKey : scoreKeyList) {
+			HashMap<String, QueryToken> tempMap = new HashMap<>();
+			switch (scoreKey) {
+				case "TR":
+					tempMap = getTextRank();
+					break;
+				case "BTR":
+					tempMap = getBTextRank();
+					break;
+				case "PTR":
+					tempMap = getPositRank();
+					break;
+				case "PR":
+					tempMap = getPOSRank();
+					break;
+				case "SR":
+					tempMap = getSimilarityRank();
+					break;
+				default:
+					break;
+			}
+
+			List<Map.Entry<String, QueryToken>> sortedMap = MyItemSorter.sortQTokensByScoreKey(tempMap, scoreKey);
+			tokenScoreMap = combinedTokenDOIMap(tokenScoreMap, sortedMap, scoreKey);
+		}
+		return tokenScoreMap;
+	}
+
 	// TODO: Will be removed, use "provideSearchQueryByScoreKeyList" method instead
 	public String provideSearchQuery(String scoreKey) {
 
@@ -311,6 +371,61 @@ public class SearchTermProvider {
 		return (1 - (double) index / N);
 	}
 
+	protected HashMap<String, QueryToken> combinedTokenDOIMap(
+			HashMap<String, QueryToken> tokenScoreMap, List<Map.Entry<String, QueryToken>> newSortedMap, String scoreKey) {
+
+		for (int i = 0; i < newSortedMap.size(); i++) {
+			double doi = getDOI(i, newSortedMap.size());
+			String key = newSortedMap.get(i).getKey();
+			QueryToken oldTokenScore = tokenScoreMap.get(key);
+
+			if (oldTokenScore != null) {
+				oldTokenScore.setScoreByScoreKey(scoreKey, doi);
+			} else {
+				QueryToken newTokenScore = new QueryToken();
+				newTokenScore.setScoreByScoreKey(scoreKey, doi);
+				tokenScoreMap.put(key, newTokenScore);
+			}
+		}
+
+		return tokenScoreMap;
+	}
+
+	protected HashMap<String, Double> combinedScores(HashMap<String, Double> combineddb,
+																									 List<Map.Entry<String, QueryToken>> dbSorted, String scoreKey) {
+		double parameter = 1.0;
+		switch (scoreKey) {
+			case "TR":
+				parameter = StaticData.TR_alpha;
+				break;
+			case "PR":
+				parameter = StaticData.PR_beta;
+				break;
+			case "SR":
+				parameter = StaticData.SR_gamma;
+				break;
+			case "BTR":
+				parameter = StaticData.BTR_delta;
+				break;
+			case "PTR":
+				parameter = StaticData.PTR_epsilon;
+				break;
+		}
+
+		for (int i = 0; i < dbSorted.size(); i++) {
+			double doi = getDOI(i, dbSorted.size());
+			String key = dbSorted.get(i).getKey();
+			if (!combineddb.containsKey(key)) {
+				combineddb.put(key, doi * parameter);
+			} else {
+				double score = combineddb.get(key) + doi * parameter;
+				combineddb.put(key, score);
+			}
+		}
+		return combineddb;
+	}
+
+	// TODO: Will be removed, use "provideSearchQueryByScoreKeyList" method instead
 	protected HashMap<String, Double> getCombinedTPRScores(HashMap<String, QueryToken> textRankMap,
 																													HashMap<String, QueryToken> posRankMap) {
 		// extracting final query terms
@@ -323,6 +438,7 @@ public class SearchTermProvider {
 		return combineddb;
 	}
 
+	// TODO: Will be removed, use "provideSearchQueryByScoreKeyList" method instead
 	protected HashMap<String, Double> getCombinedTPTRScores(HashMap<String, QueryToken> textRankMap,
 																												 HashMap<String, QueryToken> positRankMap) {
 		// extracting final query terms
@@ -335,6 +451,7 @@ public class SearchTermProvider {
 		return combineddb;
 	}
 
+	// TODO: Will be removed, use "provideSearchQueryByScoreKeyList" method instead
 	protected HashMap<String, Double> getCombinedPTPRScores(HashMap<String, QueryToken> positRankMap,
 																												 HashMap<String, QueryToken> posRankMap) {
 		// extracting final query terms
@@ -347,6 +464,7 @@ public class SearchTermProvider {
 		return combineddb;
 	}
 
+	// TODO: Will be removed, use "provideSearchQueryByScoreKeyList" method instead
 	protected HashMap<String, Double> getCombinedTPSRScores(HashMap<String, QueryToken> tokenRankMap,
 																													HashMap<String, QueryToken> posRankMap, HashMap<String, QueryToken> simRankMap) {
 		// extracting final query terms
@@ -361,6 +479,7 @@ public class SearchTermProvider {
 		return combineddb;
 	}
 
+	// TODO: Will be removed, use "provideSearchQueryByScoreKeyList" method instead
 	protected HashMap<String, Double> getCombinedTPPTRScores(HashMap<String, QueryToken> tokenRankMap,
 																													HashMap<String, QueryToken> posRankMap, HashMap<String, QueryToken> positRankMap) {
 		// extracting final query terms
@@ -375,49 +494,7 @@ public class SearchTermProvider {
 		return combineddb;
 	}
 
-	protected HashMap<String, Double> combinedScores(HashMap<String, Double> combineddb,
-																List<Map.Entry<String, QueryToken>> dbSorted, String scoreKey) {
-		double parameter = 1.0;
-		switch (scoreKey) {
-			case "TR":
-				parameter = StaticData.alpha;
-				break;
-			case "PR":
-				parameter = StaticData.beta;
-				break;
-			case "SR":
-				parameter = StaticData.gamma;
-				break;
-			case "BTR":
-				parameter = StaticData.delta;
-				break;
-			case "PTR":
-				parameter = StaticData.epsilon;
-				break;
-		}
-
-		for (int i = 0; i < dbSorted.size(); i++) {
-			double doi = getDOI(i, dbSorted.size());
-			String key = dbSorted.get(i).getKey();
-			if (!combineddb.containsKey(key)) {
-				if (!StaticData.ADD_SIMRANK_SCORE && scoreKey.equals("SR")) {
-					combineddb.put(key, - doi * parameter);
-				} else {
-					combineddb.put(key, doi * parameter);
-				}
-			} else {
-				double score = 0.0;
-				if (!StaticData.ADD_SIMRANK_SCORE && scoreKey.equals("SR")) {
-					score = combineddb.get(key) - doi * parameter;
-				} else {
-					score = combineddb.get(key) + doi * parameter;
-				}
-				combineddb.put(key, score);
-			}
-		}
-		return combineddb;
-	}
-
+	// TODO: Will be removed, use "provideSearchQueryByScoreKeyList" method instead
 	protected HashMap<String, Double> getCombinedTPBRScores(HashMap<String, QueryToken> textRankMap,
 																													 HashMap<String, QueryToken> posRankMap, HashMap<String, QueryToken> bTextRankMap) {
 		// extracting final query terms
@@ -455,6 +532,7 @@ public class SearchTermProvider {
 		return combineddb;
 	}
 
+	// TODO: Will be removed, use "provideSearchQueryByScoreKeyList" method instead
 	protected HashMap<String, Double> transferScores(HashMap<String, QueryToken> scoreMap, String scoreKey) {
 		HashMap<String, Double> tempMap = new HashMap<>();
 		for (String key : scoreMap.keySet()) {

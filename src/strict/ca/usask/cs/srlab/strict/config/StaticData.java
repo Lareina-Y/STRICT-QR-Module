@@ -9,8 +9,7 @@ public class StaticData {
 	public static String CHANGEREQS_EMB = StaticData.HOME_DIR + "/ChangeReqs-Normalized-Emb/";
 	public static String CHANGEREQS_DEC_EMB = StaticData.HOME_DIR + "/ChangeReqs-Dec-Normalized-Emb/";
 	public static String WORD_VECTOR_FILE = HOME_DIR + "/GloVe/glove.6B/glove.6B.100d.txt";
-	public static double SIMILARITY_THRESHOLD = 0.3; // [0, 1]
-	public static boolean ADD_SIMRANK_SCORE = true;
+	public static double SIMILARITY_THRESHOLD = 0.5; // [0, 1]
 
 	public static String INDEX_FOLDER = HOME_DIR + "/lucene/index-method";
 	public static String CORPUS_FOLDER = HOME_DIR + "/corpus/norm-method";
@@ -34,11 +33,11 @@ public class StaticData {
 	public static boolean USE_DYNAMIC_KEYWORD_THRESHOLD = false;
 	public static boolean ADD_CODE_ELEM = false;
 
-	public static double alpha = 1;// 0.45309403507098156; // TR
-	public static double beta = 1;// 0.8374424351745824; // PR
-	public static double gamma = 1;// 0.3753504417175002; //SR
-	public static double delta = 1;// STR
-	public static double epsilon = 1;// PTR
+	public static double TR_alpha = 1;// 0.45309403507098156; // TR
+	public static double PR_beta = 1;// 0.8374424351745824; // PR
+	public static double SR_gamma = 1;// 0.3753504417175002; //SR
+	public static double BTR_delta = 1;// BTR
+	public static double PTR_epsilon = 1;// PTR
 
 	public static String ARFF_HEADER_FILE="./qdiff-model/arffheader.txt";
 

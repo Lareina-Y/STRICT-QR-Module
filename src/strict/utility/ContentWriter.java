@@ -1,8 +1,11 @@
 package strict.utility;
 
+import strict.query.QueryToken;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class ContentWriter {
 	public static boolean writeContent(String outFile, ArrayList<String> items) {
@@ -93,6 +96,30 @@ public class ContentWriter {
 		} catch (Exception exc) {
 			exc.printStackTrace();
 		}
+	}
+
+	// Write the TokenScoreMap into the Replication Package
+	public static boolean writeTokenScoreMap(String outFile, HashMap<String, QueryToken> tokenScoreMap) {
+		// writing content to output
+		boolean written = false;
+		try {
+			FileWriter fwriter = new FileWriter(new File(outFile));
+			for (String token : tokenScoreMap.keySet()) {
+				QueryToken tokenScore = tokenScoreMap.get(token);
+				fwriter.write(token + "\t" +
+						tokenScore.textRankScore + " " +
+						tokenScore.posRankScore + " " +
+						tokenScore.simRankScore + " " +
+						tokenScore.bTextRankScore + " " +
+						tokenScore.positRankScore + "\n");
+			}
+			fwriter.close();
+			written = true;
+
+		} catch (Exception exc) {
+			exc.printStackTrace();
+		}
+		return written;
 	}
 
 }

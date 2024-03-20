@@ -1,7 +1,6 @@
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 import strict.ca.usask.cs.srlab.strict.config.StaticData;
@@ -18,11 +17,10 @@ public class Main {
         ArrayList<String> repos = ContentLoader.getAllLinesOptList("./repos/repos.txt");
 
         for (String repoName : repos) {
-//            String repoName = "eclipse.jdt.core";
             ArrayList<Integer> selectedBugs = SelectedBugs.loadSelectedBugs(repoName);
 
-            String scoreKey = "TSR";
-            List<String> scoreKeyList = Arrays.asList("TR", "SR"); // "TR", "PR", "SR", "BTR", "PTR"
+            String scoreKey = "TPSBTPTR";
+            List<String> scoreKeyList = Arrays.asList("TR", "PR", "SR", "BTR", "PTR"); // "TR", "PR", "SR", "BTR", "PTR"
             List<String> simThresholdRankList = Arrays.asList("SR", "BTR");
             boolean addST = false;
             for (String key : scoreKeyList) {
@@ -32,21 +30,36 @@ public class Main {
                 }
             }
 //          0.1, 0.2, 0.3, 0.4, 0.5, 0.6
-            double[] thresholdList = addST ? new double[]{0.2, 0.3, 0.4, 0.5, 0.6}: new double[]{0.2};
+            double[] thresholdList = addST ? new double[]{0.5}: new double[]{0.5};
             for (double st : thresholdList) { // threshold is from 0.2 to 0.6
-                StaticData.ADD_SIMRANK_SCORE = true;
                 StaticData.SIMILARITY_THRESHOLD = st;
 
                 StaticData.ADD_CODE_ELEM=false;
                 StaticData.ADD_TITLE=true;
-                ArrayList<String> queries = new SearchQueryProvider(
-                        repoName, scoreKey, selectedBugs, scoreKeyList).provideSearchQueries();
-                MiscUtility.showItems(queries);
 
-                String resultKey = "STRICT-" + scoreKey + "-10"
-                        + (StaticData.ADD_TITLE ? "-title-Word2Vec" : "") //-expandCCWords
-                        + (addST ? "-" + StaticData.SIMILARITY_THRESHOLD : "");
-                String approachQueryFile = StaticData.HOME_DIR + "/Lareina/query-v3/" + repoName + "/two/" + resultKey
+                StaticData.TR_alpha = 2.5;// 0.45309403507098156; // TR
+                StaticData.PR_beta = 3;// 0.8374424351745824; // PR
+                StaticData.SR_gamma = 0;// 0.3753504417175002; //SR
+                StaticData.BTR_delta = 0;// STR
+                StaticData.PTR_epsilon = 0;// PTR
+
+                ArrayList<String> queries = new SearchQueryProvider(
+                        repoName, selectedBugs, scoreKeyList).provideSearchQueriesByTokenScoreMap();
+//                MiscUtility.showItems(queries);
+
+//                String resultKey = "STRICT-" + scoreKey + "-10"
+//                        + (StaticData.ADD_TITLE ? "-title-test" : "") //-expandCCWords
+//                        + (addST ? "-" + StaticData.SIMILARITY_THRESHOLD : "");
+
+                String resultKey =
+                    "TR_" + StaticData.TR_alpha +
+                    "_PR_" + StaticData.PR_beta +
+                    "_SR_" + StaticData.SR_gamma +
+                    "_STR_" + StaticData.BTR_delta +
+                    "_PTR_" + StaticData.PTR_epsilon +
+                    "_10" + (StaticData.ADD_TITLE ? "_title" : "") +  "_" + StaticData.SIMILARITY_THRESHOLD;
+
+                String approachQueryFile = StaticData.HOME_DIR + "/Lareina/query-parameter-tuning/" + repoName + "/" + resultKey
                         + ".txt";
 
                 ContentWriter.writeContent(approachQueryFile, queries);

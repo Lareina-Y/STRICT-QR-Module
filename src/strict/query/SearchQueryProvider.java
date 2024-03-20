@@ -2,6 +2,7 @@ package strict.query;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import strict.ca.usask.cs.srlab.strict.config.StaticData;
@@ -13,14 +14,12 @@ import strict.utility.MiscUtility;
 public class SearchQueryProvider {
 
 	String repoName;
-	String scoreKey;
 	List<String> scoreKeyList;
 	ArrayList<Integer> selectedBugs;
 	String queryOutputFile;
 
-	public SearchQueryProvider(String repoName, String scoreKey, ArrayList<Integer> selectedBugs, List<String> scoreKeyList) {
+	public SearchQueryProvider(String repoName, ArrayList<Integer> selectedBugs, List<String> scoreKeyList) {
 		this.repoName = repoName;
-		this.scoreKey = scoreKey;
 		this.selectedBugs = selectedBugs;
 		this.scoreKeyList = scoreKeyList;
 	}
@@ -71,24 +70,94 @@ public class SearchQueryProvider {
 				String codetokens = getCamelCaseQuery(bugReport);
 				suggestedQuery += "\t" + codetokens;
 			}
-			if (StaticData.ADD_TITLE) {
-				String titletokens = getNormalizedTitle(title);
-				suggestedQuery += "\t" + titletokens;
-			}
-//			if (StaticData.ADD_TITLE) { //TODO : Test in query-v3
+//			if (StaticData.ADD_TITLE) {
 //				String titletokens = getNormalizedTitle(title);
-//				ArrayList<String> addString = new ArrayList<>();
-//				for (String titleToken : titletokens.split(" ")) {
-//					if (!suggestedQuery.contains(titleToken)) {
-//						addString.add(titleToken);
-//					}
-//				}
-//				suggestedQuery += "\t" + MiscUtility.list2Str(addString);
+//				suggestedQuery += "\t" + titletokens;
 //			}
+			if (StaticData.ADD_TITLE) { //TODO : Test in query-v3
+				String titletokens = getNormalizedTitle(title);
+				ArrayList<String> addString = new ArrayList<>();
+				for (String titleToken : titletokens.split(" ")) {
+					if (!suggestedQuery.contains(titleToken)) {
+						addString.add(titleToken);
+					}
+				}
+				suggestedQuery += "\t" + MiscUtility.list2Str(addString);
+			}
 			
 			String queryLine = bugID + "\t" + suggestedQuery;
 			queries.add(queryLine);
 			System.out.println("Log: " + queryLine);
+		}
+		return queries;
+	}
+
+	public ArrayList<String> provideSearchQueriesByTokenScoreMap() {
+		ArrayList<String> queries = new ArrayList<>();
+		for (int bugID : this.selectedBugs) {
+			String title = BugReportLoader.loadBugReportTitle(repoName, bugID);
+
+			SearchTermProvider provider = new SearchTermProvider(repoName, bugID);
+			String suggestedKeywords = provider.provideSearchQueriesByTokenScoreMap(scoreKeyList);
+			String suggestedQuery = new String(suggestedKeywords);
+
+//			if (StaticData.ADD_CODE_ELEM) {
+//				String codetokens = getCamelCaseQuery(bugReport);
+//				suggestedQuery += "\t" + codetokens;
+//			}
+//			if (StaticData.ADD_TITLE) {
+//				String titletokens = getNormalizedTitle(title);
+//				suggestedQuery += "\t" + titletokens;
+//			}
+			if (StaticData.ADD_TITLE) { //TODO : Test in query-v3
+				String titletokens = getNormalizedTitle(title);
+				ArrayList<String> addString = new ArrayList<>();
+				for (String titleToken : titletokens.split(" ")) {
+					if (!suggestedQuery.contains(titleToken)) {
+						addString.add(titleToken);
+					}
+				}
+				suggestedQuery += "\t" + MiscUtility.list2Str(addString);
+			}
+
+			String queryLine = bugID + "\t" + suggestedQuery;
+			queries.add(queryLine);
+//			System.out.println("Log: " + queryLine);
+		}
+		return queries;
+	}
+
+	public HashMap<Integer, String> provideSearchQueriesMapByTokenScoreMap() {
+		HashMap<Integer, String> queries = new HashMap<>();
+		for (int bugID : this.selectedBugs) {
+//			String bugReport = BugReportLoader.loadBugReport(repoName, bugID);
+			String title = BugReportLoader.loadBugReportTitle(repoName, bugID);
+
+			SearchTermProvider provider = new SearchTermProvider(repoName, bugID);
+			String suggestedKeywords = provider.provideSearchQueriesByTokenScoreMap(scoreKeyList);
+			String suggestedQuery = new String(suggestedKeywords);
+
+//			if (StaticData.ADD_CODE_ELEM) {
+//				String codetokens = getCamelCaseQuery(bugReport);
+//				suggestedQuery += "\t" + codetokens;
+//			}
+//			if (StaticData.ADD_TITLE) {
+//				String titletokens = getNormalizedTitle(title);
+//				suggestedQuery += "\t" + titletokens;
+//			}
+			if (StaticData.ADD_TITLE) { //TODO : Test in query-v3
+				String titletokens = getNormalizedTitle(title);
+				ArrayList<String> addString = new ArrayList<>();
+				for (String titleToken : titletokens.split(" ")) {
+					if (!suggestedQuery.contains(titleToken)) {
+						addString.add(titleToken);
+					}
+				}
+				suggestedQuery += "\t" + MiscUtility.list2Str(addString);
+			}
+
+			queries.put(bugID, suggestedQuery);
+//			System.out.println("Log: " + bugID + "\t" + suggestedQuery);
 		}
 		return queries;
 	}

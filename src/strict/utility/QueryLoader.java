@@ -40,6 +40,16 @@ public class QueryLoader {
 		return queryMap;
 	}
 
+	public static HashMap<Integer, String> loadQueries(String queryFile, Boolean addTitle) {
+		HashMap<Integer, String> tempMap;
+		if (addTitle) {
+			tempMap = QueryLoader.loadQuery(queryFile);
+		} else {
+			tempMap = QueryLoader.loadQueryWithoutTitle(queryFile);
+		}
+		return tempMap;
+	}
+
 	public static HashMap<Integer, Integer> loadQueryQE(String queryEffFile) {
 		ArrayList<String> qlines = ContentLoader.getAllLinesOptList(queryEffFile);
 		HashMap<Integer, Integer> queryMap = new HashMap<>();

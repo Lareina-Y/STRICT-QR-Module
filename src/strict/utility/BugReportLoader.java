@@ -1,8 +1,10 @@
 package strict.utility;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import strict.ca.usask.cs.srlab.strict.config.StaticData;
+import strict.query.QueryToken;
 
 public class BugReportLoader {
 	public static String loadBugReport(String repoName, int bugID) {
@@ -38,5 +40,26 @@ public class BugReportLoader {
 		String brFile = StaticData.CHANGEREQS_DEC_EMB + repoName + "/" + bugID + ".txt";
 		String[] sentences = ContentLoader.loadSentenceSet(brFile);
 		return sentences;
+	}
+
+	public static HashMap<String, QueryToken> loadTokenScoreMap(String repoName, int bugID) {
+		String brFile = StaticData.HOME_DIR + "/Lareina/TokenScoreMap/ST-0.5/" + repoName + "/" + bugID + ".txt";
+		String[] lines = ContentLoader.getAllLines(brFile);
+
+		HashMap<String, QueryToken> tokenScoreMap = new HashMap<>();
+		for (String line : lines) {
+			String[] tokenScores = line.split("\t");
+			String word = tokenScores[0];
+			double[] scores = MiscUtility.strList2DoubleList(tokenScores[1].split(" "));
+			QueryToken tokenMap = new QueryToken();
+			tokenMap.token = word;
+			tokenMap.textRankScore = scores[0];
+			tokenMap.posRankScore = scores[1];
+			tokenMap.simRankScore = scores[2];
+			tokenMap.bTextRankScore = scores[3];
+			tokenMap.positRankScore = scores[4];
+			tokenScoreMap.put(word, tokenMap);
+		}
+		return tokenScoreMap;
 	}
 }

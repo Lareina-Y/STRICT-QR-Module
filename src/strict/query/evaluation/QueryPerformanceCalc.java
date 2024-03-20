@@ -43,10 +43,15 @@ public class QueryPerformanceCalc {
 
 	public QueryPerformanceCalc(String repoName, String resultKey, String approachFolder, Boolean addTitle) {
 		this.repoName = repoName;
-//		this.approachQueryFile = StaticData.HOME_DIR + "/" + approachFolder + "/query/" + repoName + "/" + resultKey
-//				+ ".txt";
-		this.approachQueryFile = StaticData.HOME_DIR + "/" + approachFolder + "/query-v3/" + repoName + "/two/" + resultKey
+		// this.approachQueryFile = StaticData.HOME_DIR + "/" + approachFolder +
+		// "/query/" + repoName + "/" + resultKey
+		// + ".txt";
+		this.approachQueryFile = StaticData.HOME_DIR + "/" + approachFolder + "/query-parameter-tuning/" + repoName
+				+ "/" + resultKey
 				+ ".txt";
+		// this.approachQueryFile = StaticData.HOME_DIR + "/" + approachFolder +
+		// "/query-v3/" + repoName + "/two/" + resultKey
+		// + ".txt";
 		if (useBaseline) {
 			this.approachQueryFile = StaticData.HOME_DIR + "/Baseline/query/query-whole/" + repoName + ".txt";
 		}

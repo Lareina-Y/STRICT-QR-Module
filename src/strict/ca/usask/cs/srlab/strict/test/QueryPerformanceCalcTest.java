@@ -33,15 +33,16 @@ public class QueryPerformanceCalcTest {
 		boolean addTitle = true;
 		System.out.println("AddTitle: " + addTitle);
 
-		double[] thresholdList = {0.2, 0.3, 0.4, 0.5, 0.6}; // 0.1, 0.2, 0.3, 0.4, 0.5, 0.6 0.7
-//		double[] thresholdList = {0.2};
+//		double[] thresholdList = {0.2, 0.3, 0.4, 0.5, 0.6}; // 0.1, 0.2, 0.3, 0.4, 0.5, 0.6 0.7
+		double[] thresholdList = {0.5};
 
-		String scoreKey = "TSR";
+		String scoreKey = "TPSBTR";
 		System.out.println(scoreKey);
 
 		for (double st : thresholdList) {
 //			String resultKey = "STRICT-" + scoreKey + "-10-title" + "-" + st;
-			String resultKey = "STRICT-" + scoreKey + "-10-title";
+//			String resultKey = "STRICT-" + scoreKey + "-10-title-test";
+			String resultKey = "TR_2.5_PR_3.0_SR_0.0_STR_0.0_PTR_0.0_10_title_0.5";
 //				String resultKey = "STRICT-best-query-dec23-8pm";
 
 			for (int hit : hits) {

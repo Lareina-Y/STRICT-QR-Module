@@ -25,14 +25,6 @@ public class Helper {
         }
     }
 
-    public static double[] convert2Vector(String[] vectorValues) {
-        double[] vector = new double[vectorValues.length];
-        for (int i = 0; i < vectorValues.length; i++) {
-            vector[i] = Double.parseDouble(vectorValues[i]);
-        }
-        return vector;
-    }
-
     public static TokenVector[] sentence2TokenVectors(String sentence) {
         String[] tokens = sentence.split("\n");
         TokenVector[] tokenVectors = new TokenVector[tokens.length];
@@ -41,7 +33,7 @@ public class Helper {
             String word = tokenAndVector[0];
             double[] vector = null;
             if (tokenAndVector.length > 1) {
-                vector = convert2Vector(tokenAndVector[1].split(" "));
+                vector = MiscUtility.strList2DoubleList(tokenAndVector[1].split(" "));
             }
             TokenVector tokenVector = new TokenVector(word, vector);
             tokenVectors[i] = tokenVector;

@@ -12,4 +12,26 @@ public class QueryToken {
 	public double bTextRankBiasWeight=0;
 	public double positRankScore=0;
 	public double positRankBiasWeight =0;
+
+	public void setScoreByScoreKey (String scoreKey, double score) {
+		switch (scoreKey) {
+			case "TR":
+				this.textRankScore = score;
+				break;
+			case "PR":
+				this.posRankScore = score;
+				break;
+			case "SR":
+				this.simRankScore = score;
+				break;
+			case "BTR":
+				this.bTextRankScore = score;
+				break;
+			case "PTR":
+				this.positRankScore = score;
+				break;
+			default:
+				break;
+		}
+	}
 }

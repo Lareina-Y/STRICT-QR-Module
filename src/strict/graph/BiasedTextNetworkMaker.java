@@ -85,7 +85,7 @@ public class BiasedTextNetworkMaker {
     public double[] getBiasVector(String repoName, int bugID) {
         String bugReportPath = StaticData.HOME_DIR + "/ChangeReqs-Title-Emb/" + repoName + "/" + bugID + ".txt";
         String[] embeddedTitle = ContentLoader.getAllLines(bugReportPath)[1].split(" ");
-        double[] biasVector = Helper.convert2Vector(embeddedTitle);
+        double[] biasVector = MiscUtility.strList2DoubleList(embeddedTitle);
         return biasVector;
     }
 

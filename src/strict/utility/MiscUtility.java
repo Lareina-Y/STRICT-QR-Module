@@ -137,4 +137,12 @@ public class MiscUtility {
 		}
 	}
 
+	public static double[] strList2DoubleList(String[] strList) {
+		double[] doubleList = new double[strList.length];
+		for (int i = 0; i < strList.length; i++) {
+			doubleList[i] = Double.parseDouble(strList[i]);
+		}
+		return doubleList;
+	}
+
 }

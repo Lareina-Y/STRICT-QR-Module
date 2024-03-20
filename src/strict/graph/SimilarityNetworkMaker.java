@@ -169,7 +169,6 @@ public class SimilarityNetworkMaker {
         StaticData.ADD_CODE_ELEM = false;
         StaticData.ADD_TITLE = false;
         StaticData.SIMILARITY_THRESHOLD = 0.55;
-        StaticData.ADD_SIMRANK_SCORE = true;
 
         String bugReport = BugReportLoader.loadBugReport(repoName, 303705);
         String title = BugReportLoader.loadBugReportTitle(repoName, 303705);
