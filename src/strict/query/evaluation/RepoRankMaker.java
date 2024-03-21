@@ -3,8 +3,9 @@ package strict.query.evaluation;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+//import strict.lucenecheck.MethodResultRankMgr;
+import strict.lucenecheck.ClassResultRankMgr;
 import strict.lucenecheck.LuceneSearcher;
-import strict.lucenecheck.MethodResultRankMgr;
 import strict.utility.ContentWriter;
 import strict.utility.QueryLoader;
 import strict.utility.SelectedBugs;
@@ -53,7 +54,8 @@ public class RepoRankMaker {
 			if (suggestedQueryMap.containsKey(bugID)) {
 				String suggested = suggestedQueryMap.get(bugID);
 				LuceneSearcher lsearch = new LuceneSearcher(bugID, repoName, suggested.toLowerCase());
-				int qe = lsearch.getFirstGoldRank();
+//				int qe = lsearch.getFirstGoldRank();
+				int qe = lsearch.getFirstGoldRankClass();
 				ranks.add(bugID + "\t" + qe);
 				if(qe == -1) {
 					this.RankSum += 10000; // TODO: skip or not?
@@ -64,11 +66,13 @@ public class RepoRankMaker {
 		}
 
 		// clearing the keys
-		MethodResultRankMgr.keyMap.clear();
+//		MethodResultRankMgr.keyMap.clear();
+		ClassResultRankMgr.keyMap.clear();
 
 		return ranks;
 	}
 
+	// TODO: Will be removed, No longer used
 	public ArrayList<String> collectQE(HashMap<Integer, String> suggestedTPRQueryMap,  HashMap<Integer, String> suggestedTPSRQueryMap, HashMap<Integer, String> suggestedTPMSRQueryMap) {
 		ArrayList<String> ranks = new ArrayList<>();
 
@@ -84,10 +88,10 @@ public class RepoRankMaker {
 				LuceneSearcher lsearchTPSR = new LuceneSearcher(bugID, repoName, suggestedTPSR.toLowerCase());
 				LuceneSearcher lsearchTPMSR = new LuceneSearcher(bugID, repoName, suggestedTPMSR.toLowerCase());
 
-				int qeTPR = lsearchTPR.getFirstGoldRank();
+				int qeTPR = lsearchTPR.getFirstGoldRankClass();
 //				int qeSR = lsearchSR.getFirstGoldRank();
-				int qeTPSR = lsearchTPSR.getFirstGoldRank();
-				int qeTPMSR = lsearchTPMSR.getFirstGoldRank();
+				int qeTPSR = lsearchTPSR.getFirstGoldRankClass();
+				int qeTPMSR = lsearchTPMSR.getFirstGoldRankClass();
 
 				ranks.add(bugID + "\t" + qeTPR + "\t" + qeTPSR + "\t" + qeTPMSR);
 				System.out.println("Save: " + bugID + "\t" + qeTPR + "\t" + qeTPSR + "\t" + qeTPMSR);
@@ -105,7 +109,7 @@ public class RepoRankMaker {
 //		System.out.println("Repo Saved: " + repoName + "_" + StaticData.SIMILARITY_THRESHOLD);
 
 		ContentWriter.writeContent(this.rankFile, ranks);
-//		System.out.println("Repo:" + repoName);
+		System.out.println("> Rank Saved: " + repoName);
 	}
 
 }

@@ -18,6 +18,8 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+
+//import config.StaticData;
 import strict.ca.usask.cs.srlab.strict.config.StaticData;
 
 public class IndexLucene {
@@ -29,9 +31,9 @@ public class IndexLucene {
 
 	public IndexLucene(String repoName) {
 		// initialization
-		this.index = StaticData.HOME_DIR + "/Lucene/index-method/";
-		this.docs = StaticData.HOME_DIR + "/Corpus/";
-		this.makeIndexFolder(repoName);
+		this.index = StaticData.HOME_DIR + "/Lucene/index-class/" + repoName;
+		this.docs = StaticData.HOME_DIR + "/Corpus/norm-class/" + repoName;
+		// this.makeIndexFolder(repoName);
 		System.out.println("Index:" + this.index);
 		System.out.println("Docs:" + this.docs);
 	}
@@ -39,14 +41,11 @@ public class IndexLucene {
 	public IndexLucene(String indexFolder, String docsFolder) {
 		this.index = indexFolder;
 		this.docs = docsFolder;
-		this.makeIndexFolder(indexFolder);
 	}
 
-	protected void makeIndexFolder(String indexFolder) {
-		File indexDir = new File(indexFolder);
-		if (!indexDir.exists()) {
-			indexDir.mkdir();
-		}
+	protected void makeIndexFolder(String repoName) {
+		new File(this.index + "/" + repoName).mkdir();
+		this.index = this.index + "/" + repoName;
 	}
 
 	public void indexCorpusFiles() {
@@ -96,12 +95,17 @@ public class IndexLucene {
 				try {
 					// make a new, empty document
 					Document doc = new Document();
+
 					Field pathField = new StringField("path", file.getPath(), Field.Store.YES);
 					doc.add(pathField);
+
 					doc.add(new TextField("contents", new BufferedReader(new InputStreamReader(fis, "UTF-8"))));
 					// System.out.println("adding " + file);
-					totalIndexed++;
+
 					writer.addDocument(doc);
+
+					totalIndexed++;
+
 				} catch (UnsupportedEncodingException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -121,5 +125,18 @@ public class IndexLucene {
 				}
 			}
 		}
+	}
+
+	public static void main(String[] args) {
+		long start = System.currentTimeMillis();
+		String repoName = "swt";
+		// IndexLucene indexer=new IndexLucene(repoName);
+		String docs = StaticData.HOME_DIR + "/Corpus/norm-class/" + repoName;
+		String index = StaticData.HOME_DIR + "/Lucene/index-class/" + repoName;
+		IndexLucene indexer = new IndexLucene(index, docs);
+		indexer.indexCorpusFiles();
+		System.out.println("Files indexed:" + indexer.totalIndexed);
+		long end = System.currentTimeMillis();
+		System.out.println("Time needed:" + (end - start) / 1000 + " s");
 	}
 }

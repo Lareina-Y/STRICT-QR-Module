@@ -4,7 +4,7 @@ public class StaticData {
 
 	// public final attributes
 //	public static String HOME_DIR = "C:\\MyWorks\\MyResearch\\STRICT\\experiment\\STRICT-Replication-Package";
-	public static String HOME_DIR = "/Users/shiwenyang/DalCS/Honours/STRICT-Replication-Package";
+	public static String HOME_DIR = "/Users/shiwenyang/DalCS/Honours/STRICT++-Replication-Package";
 
 	public static String CHANGEREQS_EMB = StaticData.HOME_DIR + "/ChangeReqs-Normalized-Emb/";
 	public static String CHANGEREQS_DEC_EMB = StaticData.HOME_DIR + "/ChangeReqs-Dec-Normalized-Emb/";

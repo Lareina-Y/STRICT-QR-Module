@@ -1,7 +1,7 @@
 package strict.ca.usask.cs.srlab.strict.test;
 
 import strict.lucenecheck.LuceneSearcher;
-import strict.lucenecheck.MethodEntityUtil;
+//import strict.lucenecheck.MethodEntityUtil;
 import org.junit.Test;
 import strict.utility.MiscUtility;
 
@@ -21,13 +21,14 @@ public class LuceneSearcherTest {
 //		String searchQuery = "IJava Content Tree element IResource java Element Provider";
 		String searchQuery = "element IJava IResource search java IJavaElement IJava Element Content check Tree Provider\tBug Custom hierarchically view";
 		LuceneSearcher searcher = new LuceneSearcher(bugID, repository, searchQuery);
-		System.out.println("First found index:" + searcher.getFirstGoldRank());
+//		System.out.println("First found index:" + searcher.getFirstGoldRank());
+		System.out.println("First found index:" + searcher.getFirstGoldRankClass());
 	}
 
-	@Test
-	public void testMethodEntryAnalysis() {
-		String entry = "org.apache.commons.math3.geometry.euclidean.twod.Line$LineTransform:<init>(java.awt.geom.AffineTransform)";
-		MethodEntityUtil.analyseMethodEntity(entry);
-	}
+//	@Test
+//	public void testMethodEntryAnalysis() {
+//		String entry = "org.apache.commons.math3.geometry.euclidean.twod.Line$LineTransform:<init>(java.awt.geom.AffineTransform)";
+//		MethodEntityUtil.analyseMethodEntity(entry);
+//	}
 
 }

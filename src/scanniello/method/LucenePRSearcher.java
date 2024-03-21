@@ -18,7 +18,8 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.FSDirectory;
 import strict.ca.usask.cs.srlab.strict.config.StaticData;
-import strict.lucenecheck.MethodResultRankMgr;
+//import strict.lucenecheck.MethodResultRankMgr;
+import strict.lucenecheck.ClassResultRankMgr;
 import strict.utility.ContentLoader;
 import strict.utility.ItemSorter;
 
@@ -171,8 +172,10 @@ public class LucenePRSearcher {
 		this.results = performVSMPRSearchList(false, true);
 		// System.out.println("TopK:" + this.results.size());
 		try {
-			MethodResultRankMgr rankFinder = new MethodResultRankMgr(repository, bugID, results);
-			ArrayList<Integer> indices = rankFinder.getCorrectRanks();
+//			MethodResultRankMgr rankFinder = new MethodResultRankMgr(repository, bugID, results);
+//			ArrayList<Integer> indices = rankFinder.getCorrectRanks();
+			ClassResultRankMgr rankFinder = new ClassResultRankMgr(repository, results, goldset);
+			ArrayList<Integer> indices = rankFinder.getCorrectRanksDotted(TOPK_RESULTS);
 			if (!indices.isEmpty()) {
 				foundIndices.addAll(indices);
 			}
@@ -188,7 +191,9 @@ public class LucenePRSearcher {
 		this.results = performVSMPRSearchList(true, true);
 		int foundIndex = -1;
 		try {
-			MethodResultRankMgr rankFinder = new MethodResultRankMgr(repository, bugID, results);
+//			MethodResultRankMgr rankFinder = new MethodResultRankMgr(repository, bugID, results);
+//			foundIndex = rankFinder.getFirstGoldRank();
+			ClassResultRankMgr rankFinder = new ClassResultRankMgr(repository, results, goldset);
 			foundIndex = rankFinder.getFirstGoldRank();
 		} catch (Exception exc) {
 			// handle the exception

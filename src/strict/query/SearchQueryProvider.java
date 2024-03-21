@@ -60,9 +60,11 @@ public class SearchQueryProvider {
 		for (int bugID : this.selectedBugs) {
 			String bugReport = BugReportLoader.loadBugReport(repoName, bugID);
 			String title = BugReportLoader.loadBugReportTitle(repoName, bugID);
-			
-			SearchTermProvider provider = new SearchTermProvider(repoName, bugID, title, bugReport, scoreKeyList);
+
+			SearchTermProvider provider = new SearchTermProvider(repoName, bugID, title, bugReport);
 //			String suggestedKeywords = provider.provideSearchQuery(scoreKey);
+
+//			SearchTermProvider provider = new SearchTermProvider(repoName, bugID, title, bugReport, scoreKeyList);
 			String suggestedKeywords = provider.provideSearchQueryByScoreKeyList(scoreKeyList);
 			String suggestedQuery = new String(suggestedKeywords);
 			

@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import scanniello.method.LucenePRSearcher;
 import strict.ca.usask.cs.srlab.strict.config.StaticData;
+import strict.lucenecheck.ClassResultRankMgr;
 import strict.lucenecheck.LuceneSearcher;
-import strict.lucenecheck.MethodResultRankMgr;
+//import strict.lucenecheck.MethodResultRankMgr;
 import strict.utility.QueryLoader;
 import strict.utility.SelectedBugs;
 
@@ -159,7 +160,7 @@ public class QueryPerformanceCalc {
 			} else {
 				LuceneSearcher searcher = new LuceneSearcher(bugID, repoName, searchQuery);
 				LuceneSearcher.TOPK_RESULTS = TOPCUT;
-				indices = searcher.getGoldFileIndices();
+				indices = searcher.getGoldFileIndicesClass();
 			}
 
 			double rr = 0, ap = 0;
@@ -200,7 +201,8 @@ public class QueryPerformanceCalc {
 		masterRRList.add(MRR);
 
 		// clearing the keys
-		MethodResultRankMgr.keyMap.clear();
+		// MethodResultRankMgr.keyMap.clear();
+		ClassResultRankMgr.keyMap.clear();
 		LucenePRSearcher.prScoreMap.clear();
 	}
 

@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import strict.ca.usask.cs.srlab.strict.config.StaticData;
+import strict.lucenecheck.ClassResultRankMgr;
 import strict.lucenecheck.LuceneSearcher;
-import strict.lucenecheck.MethodResultRankMgr;
+//import strict.lucenecheck.MethodResultRankMgr;
 import strict.utility.MiscUtility;
 import strict.utility.QueryLoader;
 import strict.utility.ContentWriter;
@@ -30,7 +31,8 @@ public class KevicDatasetMaker {
 
 	protected int getKeywordClassLabel(int bugID, String keyword) {
 		LuceneSearcher searcher = new LuceneSearcher(bugID, this.repoName, keyword);
-		int qe = searcher.getFirstGoldRank();
+//		int qe = searcher.getFirstGoldRank();
+		int qe = searcher.getFirstGoldRankClass();
 		if (qe > 0) {
 			return 1;
 		}
@@ -49,7 +51,8 @@ public class KevicDatasetMaker {
 				}
 			}
 		}
-		MethodResultRankMgr.keyMap.clear();
+//		MethodResultRankMgr.keyMap.clear();
+		ClassResultRankMgr.keyMap.clear();
 	}
 
 	public void setMasterKeywordFile(String filePath) {
