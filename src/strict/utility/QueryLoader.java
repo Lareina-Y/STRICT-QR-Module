@@ -28,6 +28,18 @@ public class QueryLoader {
 		return queryMap;
 	}
 
+	public static HashMap<Integer, String> loadQueryIncludeTab(String queryFile) {
+		ArrayList<String> qlines = ContentLoader.getAllLinesOptList(queryFile);
+		HashMap<Integer, String> queryMap = new HashMap<>();
+		for (String line : qlines) {
+			String[] lineParts = line.split("\t", 2);
+			int bugID = Integer.parseInt(lineParts[0]);
+			String query = lineParts[1];
+			queryMap.put(bugID, query);
+		}
+		return queryMap;
+	}
+
 	public static HashMap<Integer, String> loadQueryWithoutTitle(String queryFile) {
 		ArrayList<String> qlines = ContentLoader.getAllLinesOptList(queryFile);
 		HashMap<Integer, String> queryMap = new HashMap<>();

@@ -16,7 +16,10 @@ public class QueryPerformanceCalcTest {
 		MethodResultRankMgr.matchClass = false;
 		QueryPerformanceCalc.useHQB = false;
 		QueryPerformanceCalc.useLQB = false;
+		QueryPerformanceCalc.useTest = true;
+		QueryPerformanceCalc.useTrain = false;
 
+//		String approachFolder = "Baseline";
 		String approachFolder = "Lareina";
 //		String approachFolder = "Proposed-STRICT";
 		// String approachFolder = "Rocchio";
@@ -28,7 +31,7 @@ public class QueryPerformanceCalcTest {
 		QueryPerformanceCalc.useScanniello = false;
 		LucenePRSearcher.ALL_RESULTS = 100;
 
-		int[] hits = { 10, 50, 100 };
+		int[] hits = { 10 };
 
 		boolean addTitle = true;
 		System.out.println("AddTitle: " + addTitle);
@@ -42,8 +45,9 @@ public class QueryPerformanceCalcTest {
 		for (double st : thresholdList) {
 //			String resultKey = "STRICT-" + scoreKey + "-10-title" + "-" + st;
 //			String resultKey = "STRICT-" + scoreKey + "-10-title-test";
-			String resultKey = "TR_2.5_PR_3.0_SR_0.0_STR_0.0_PTR_0.0_10_title_0.5";
+			String resultKey = "TR_0.0_PR_9.0_SR_0.4_STR_1.0_PTR_1.0_10_title_0.5";
 //				String resultKey = "STRICT-best-query-dec23-8pm";
+//			String resultKey = "STRICT-TPR-10-title";
 
 			for (int hit : hits) {
 				for (String repoName : repos) {
@@ -53,7 +57,7 @@ public class QueryPerformanceCalcTest {
 				System.out.print(
 //					"Hit=" + hit + ":\t" +
 						QueryPerformanceCalc.sumAP / repos.size() * 100 + "%\t" +
-								QueryPerformanceCalc.sumRR / repos.size() * 100 + "%\t" +
+								QueryPerformanceCalc.sumRR / repos.size() + "\t" +
 								QueryPerformanceCalc.sumTopKAcc / repos.size() * 100 + "%"
 								+ "\t"
 				);

@@ -38,6 +38,13 @@ public class TextNormalizer {
 		return MiscUtility.list2Str(wordList);
 	}
 
+	public String normalizeSimpleDiscardSmall() {
+		String[] words = this.content.split("\\p{Punct}+|\\d+|\\s+");
+		ArrayList<String> wordList = new ArrayList<>(Arrays.asList(words));
+		ArrayList<String> removeSmall = discardSmallTokens(wordList);
+		return MiscUtility.list2Str(removeSmall);
+	}
+
 	public String normalizeSimpleWithStemming() {
 		String[] words = this.content.split("\\p{Punct}+|\\d+|\\s+");
 		ArrayList<String> wordList = new ArrayList<>(Arrays.asList(words));
@@ -127,18 +134,6 @@ public class TextNormalizer {
 			}
 		}
 		return temp;
-	}
-
-	public String normalizeText() {
-		// normalize the content
-		String[] words = this.content.split("\\p{Punct}+|\\d+|\\s+");
-		ArrayList<String> wordList = new ArrayList<>(Arrays.asList(words));
-		// discard the small tokens
-		wordList = discardSmallTokens(wordList);
-		String modifiedContent = MiscUtility.list2Str(wordList);
-		StopWordManager stopManager = new StopWordManager();
-		this.content = stopManager.getRefinedSentence(modifiedContent);
-		return this.content;
 	}
 
 	public String normalizeBaseline() {

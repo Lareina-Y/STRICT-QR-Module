@@ -40,4 +40,24 @@ public class SelectedBugs {
 		}
 		return temp;
 	}
+
+	public static ArrayList<Integer> loadSelectedTrainBugs(String repoName) {
+		String selectedBugFile = StaticData.HOME_DIR + "/Selectedbug-Train/" + repoName + ".txt";
+		ArrayList<String> lines = ContentLoader.getAllLinesOptList(selectedBugFile);
+		ArrayList<Integer> temp = new ArrayList<>();
+		for (String line : lines) {
+			temp.add(Integer.parseInt(line.trim()));
+		}
+		return temp;
+	}
+
+	public static ArrayList<Integer> loadSelectedTestBugs(String repoName) {
+		String selectedBugFile = StaticData.HOME_DIR + "/Selectedbug-Test/" + repoName + ".txt";
+		ArrayList<String> lines = ContentLoader.getAllLinesOptList(selectedBugFile);
+		ArrayList<Integer> temp = new ArrayList<>();
+		for (String line : lines) {
+			temp.add(Integer.parseInt(line.trim()));
+		}
+		return temp;
+	}
 }

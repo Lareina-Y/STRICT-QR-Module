@@ -35,6 +35,8 @@ public class QueryPerformanceCalc {
 	static int totalBugs = 0;
 
 	public static boolean useHQB = false;
+	public static boolean useTest = false;
+	public static boolean useTrain = false;
 	public static boolean useLQB = false;
 	public static boolean useBaseline = false;
 	public static boolean useScanniello = false;
@@ -43,9 +45,9 @@ public class QueryPerformanceCalc {
 
 	public QueryPerformanceCalc(String repoName, String resultKey, String approachFolder, Boolean addTitle) {
 		this.repoName = repoName;
-		// this.approachQueryFile = StaticData.HOME_DIR + "/" + approachFolder +
-		// "/query/" + repoName + "/" + resultKey
-		// + ".txt";
+//		 this.approachQueryFile = StaticData.HOME_DIR + "/" + approachFolder +
+//		 "/query/" + repoName + "/" + resultKey
+//		 + ".txt";
 		this.approachQueryFile = StaticData.HOME_DIR + "/" + approachFolder + "/query-parameter-tuning/" + repoName
 				+ "/" + resultKey
 				+ ".txt";
@@ -60,6 +62,10 @@ public class QueryPerformanceCalc {
 			this.selectedBugs = SelectedBugs.loadSelectedHQBBugs(repoName);
 		} else if (useLQB) {
 			this.selectedBugs = SelectedBugs.loadSelectedLQBBugs(repoName);
+		} else if (useTest) {
+			this.selectedBugs = SelectedBugs.loadSelectedTestBugs(repoName);
+		} else if (useTrain) {
+			this.selectedBugs = SelectedBugs.loadSelectedTrainBugs(repoName);
 		} else {
 			this.selectedBugs = SelectedBugs.loadSelectedBugs(repoName);
 		}
@@ -74,7 +80,8 @@ public class QueryPerformanceCalc {
 	protected HashMap<Integer, String> loadQueries(String queryFile, boolean addTitle) {
 		HashMap<Integer, String> tempMap;
 		if (addTitle) {
-			tempMap = QueryLoader.loadQuery(queryFile);
+//			tempMap = QueryLoader.loadQuery(queryFile);
+			tempMap = QueryLoader.loadQueryIncludeTab(queryFile);
 		} else {
 			tempMap = QueryLoader.loadQueryWithoutTitle(queryFile);
 		}

@@ -18,6 +18,7 @@ public class Main {
 
         for (String repoName : repos) {
             ArrayList<Integer> selectedBugs = SelectedBugs.loadSelectedBugs(repoName);
+//            ArrayList<Integer> selectedBugs = SelectedBugs.loadSelectedTrainBugs(repoName);
 
             String scoreKey = "TPSBTPTR";
             List<String> scoreKeyList = Arrays.asList("TR", "PR", "SR", "BTR", "PTR"); // "TR", "PR", "SR", "BTR", "PTR"
@@ -37,18 +38,18 @@ public class Main {
                 StaticData.ADD_CODE_ELEM=false;
                 StaticData.ADD_TITLE=true;
 
-                StaticData.TR_alpha = 2.5;// 0.45309403507098156; // TR
-                StaticData.PR_beta = 3;// 0.8374424351745824; // PR
-                StaticData.SR_gamma = 0;// 0.3753504417175002; //SR
-                StaticData.BTR_delta = 0;// STR
-                StaticData.PTR_epsilon = 0;// PTR
+                StaticData.TR_alpha = 0;// 0.45309403507098156; // TR
+                StaticData.PR_beta = 9;// 0.8374424351745824; // PR
+                StaticData.SR_gamma = 0.4;// 0.3753504417175002; //SR
+                StaticData.BTR_delta = 1;// STR
+                StaticData.PTR_epsilon = 1;// PTR
 
                 ArrayList<String> queries = new SearchQueryProvider(
                         repoName, selectedBugs, scoreKeyList).provideSearchQueriesByTokenScoreMap();
 //                MiscUtility.showItems(queries);
 
 //                String resultKey = "STRICT-" + scoreKey + "-10"
-//                        + (StaticData.ADD_TITLE ? "-title-test" : "") //-expandCCWords
+//                        + (StaticData.ADD_TITLE ? "-title-test" : "")
 //                        + (addST ? "-" + StaticData.SIMILARITY_THRESHOLD : "");
 
                 String resultKey =

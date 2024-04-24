@@ -62,4 +62,22 @@ public class BugReportLoader {
 		}
 		return tokenScoreMap;
 	}
+
+	public static HashMap<Integer, Integer> loadRank(String rankFile) {
+		String[] lines = ContentLoader.getAllLines(rankFile);
+		HashMap<Integer, Integer> rankMap = new HashMap<>();
+		for (String line : lines) {
+			String[] items = line.split("\t");
+			int bugId = Integer.parseInt(items[0]);
+			int goldRank = Integer.parseInt(items[1]);
+			rankMap.put(bugId, goldRank);
+		}
+		return rankMap;
+	}
+
+	public static String loadNormalizedReport(String repoName, int bugID) {
+		String brFile = StaticData.HOME_DIR + "/ChangeReqs-Normalized/" + repoName + "/" + bugID + ".txt";
+		ArrayList<String> normalizedReport = ContentLoader.getAllLinesOptList(brFile);
+		return MiscUtility.list2Str(normalizedReport);
+	}
 }

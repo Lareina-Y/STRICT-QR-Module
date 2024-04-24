@@ -28,9 +28,9 @@ public class RepoRankMakerTest {
 //        String resultKey = "STRICT-TPBR-10-title-0.2";
 //        String resultKeyWithoutTitle = "STRICT-TPBR-10-0.2";
 
-        String approachQueryFile = StaticData.HOME_DIR + "/Lareina/query-v2/" + repoName + "/two/" + resultKey
+        String approachQueryFile = StaticData.HOME_DIR + "/Lareina/query-parameter-tuning/" + repoName + "/two/" + resultKey
                 + ".txt";
-        String storedFile = StaticData.HOME_DIR + "/Lareina/rank-v2/" + repoName + "/two/" + resultKey
+        String storedFile = StaticData.HOME_DIR + "/Lareina/rank-parameter-tuning/" + repoName + "/two/" + resultKey
                 + ".txt";
         HashMap<Integer, String> queryMap = QueryLoader.loadQueries(approachQueryFile, addTitle);
 
@@ -43,15 +43,21 @@ public class RepoRankMakerTest {
     @Test
     public void testRepos() {
         ArrayList<String> repos = ContentLoader.getAllLinesOptList("./repos/repos.txt");
-        String resultKey = "STRICT-TPR-10-title";
+        String resultKey = "TR_1.0_PR_1.0_SR_0.0_STR_0.0_PTR_0.0_10_title_0.5";
         System.out.println(resultKey);
         Boolean addTitle = true;
 
         for (String repoName: repos) {
-            String approachQueryFile = StaticData.HOME_DIR + "/Lareina/query-v2/" + repoName + "/two/" + resultKey
+            String approachQueryFile = StaticData.HOME_DIR + "/Lareina/query-parameter-tuning/" + repoName + "/" + resultKey
                     + ".txt";
-            String storedFile = StaticData.HOME_DIR + "/Lareina/rank-v2/" + repoName + "/two/" + resultKey
+            String storedFile = StaticData.HOME_DIR + "/Lareina/rank-parameter-tuning/" + repoName + "/" + resultKey
                     + ".txt";
+//            String approachQueryFile = StaticData.HOME_DIR + "/Lareina/baseline/query/query-title/" + repoName + ".txt";
+//            String approachQueryFile = StaticData.HOME_DIR + "/Lareina/baseline/query/query-whole/" + repoName + ".txt";
+
+//            String storedFile =StaticData.HOME_DIR + "/Lareina/baseline/rank/rank-title/" + repoName + ".txt";
+//            String storedFile =StaticData.HOME_DIR + "/Lareina/baseline/rank/rank-whole/" + repoName + ".txt";
+
             HashMap<Integer, String> queryMap = QueryLoader.loadQueries(approachQueryFile, addTitle);
 
             RepoRankMaker repoRankMaker = new RepoRankMaker(repoName, queryMap);

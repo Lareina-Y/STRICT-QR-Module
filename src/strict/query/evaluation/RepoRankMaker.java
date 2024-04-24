@@ -3,6 +3,7 @@ package strict.query.evaluation;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import scanniello.method.LucenePRSearcher;
 import strict.lucenecheck.LuceneSearcher;
 import strict.lucenecheck.MethodResultRankMgr;
 import strict.utility.ContentWriter;
@@ -17,7 +18,7 @@ public class RepoRankMaker {
 	String rankFile;
 	String queryFile;
 
-	public int RankSum; // For Fitness function
+	public double MRR; // For Fitness function
 	static int tooGood = 0;
 	static boolean matchClasses = false;
 
@@ -39,12 +40,18 @@ public class RepoRankMaker {
 		this.repoName = repoName;
 		this.suggestedQueryMap = queryMap;
 		this.selectedBugs = SelectedBugs.loadSelectedBugs(repoName);
-		this.RankSum = 0;
+		this.MRR = 0;
+	}
+
+	public RepoRankMaker(String repoName, ArrayList<Integer> selectedBugs, HashMap<Integer, String> queryMap) {
+		this.repoName = repoName;
+ 		this.selectedBugs = selectedBugs;
+		this.suggestedQueryMap = queryMap;
+		this.MRR = 0;
 	}
 
 	public ArrayList<String> collectQE() {
 		ArrayList<String> ranks = new ArrayList<>();
-
 		if (this.suggestedQueryMap.isEmpty()) {
 			this.suggestedQueryMap = QueryLoader.loadQuery(this.queryFile);
 		}
@@ -55,13 +62,43 @@ public class RepoRankMaker {
 				LuceneSearcher lsearch = new LuceneSearcher(bugID, repoName, suggested.toLowerCase());
 				int qe = lsearch.getFirstGoldRank();
 				ranks.add(bugID + "\t" + qe);
-				if(qe == -1) {
-					this.RankSum += 10000; // TODO: skip or not?
-				} else {
-					this.RankSum += qe;
-				}
 			}
 		}
+
+		// clearing the keys
+		MethodResultRankMgr.keyMap.clear();
+
+		return ranks;
+	}
+	public ArrayList<String> collectQEMRR() {
+		ArrayList<String> ranks = new ArrayList<>();
+		double sumRR = 0;
+		if (this.suggestedQueryMap.isEmpty()) {
+			this.suggestedQueryMap = QueryLoader.loadQuery(this.queryFile);
+		}
+
+		for (int bugID : this.selectedBugs) {
+			if (suggestedQueryMap.containsKey(bugID)) {
+				String suggested = suggestedQueryMap.get(bugID);
+				LuceneSearcher lsearch = new LuceneSearcher(bugID, repoName, suggested.toLowerCase());
+//				int qe = lsearch.getFirstGoldRank();
+				LuceneSearcher.TOPK_RESULTS = 10;
+//				int indice = searcher.getFirstGoldRank();
+				ArrayList<Integer> indices= lsearch.getGoldFileIndices();
+				if (!indices.isEmpty()) {
+					double rr = getRR(indices);
+					if (rr > 0) {
+						sumRR += rr;
+					}
+				}
+//				ranks.add(bugID + "\t" + qe);
+//				if(qe != -1) {
+//					sumRR += 1.0 / qe;
+//				}
+			}
+		}
+
+		this.MRR = sumRR / selectedBugs.size();
 
 		// clearing the keys
 		MethodResultRankMgr.keyMap.clear();
@@ -106,6 +143,18 @@ public class RepoRankMaker {
 
 		ContentWriter.writeContent(this.rankFile, ranks);
 //		System.out.println("Repo:" + repoName);
+	}
+
+	protected double getRR(ArrayList<Integer> foundIndices) {
+		if (foundIndices.isEmpty())
+			return 0;
+		double min = 10000;
+		for (int index : foundIndices) {
+			if (index > 0 && index < min) {
+				min = index;
+			}
+		}
+		return 1.0 / min;
 	}
 
 }
