@@ -62,19 +62,10 @@ public class SearchQueryProvider {
 			String title = BugReportLoader.loadBugReportTitle(repoName, bugID);
 			
 			SearchTermProvider provider = new SearchTermProvider(repoName, bugID, title, bugReport, scoreKeyList);
-//			String suggestedKeywords = provider.provideSearchQuery(scoreKey);
 			String suggestedKeywords = provider.provideSearchQueryByScoreKeyList(scoreKeyList);
 			String suggestedQuery = new String(suggestedKeywords);
-			
-			if (StaticData.ADD_CODE_ELEM) {
-				String codetokens = getCamelCaseQuery(bugReport);
-				suggestedQuery += "\t" + codetokens;
-			}
-//			if (StaticData.ADD_TITLE) {
-//				String titletokens = getNormalizedTitle(title);
-//				suggestedQuery += "\t" + titletokens;
-//			}
-			if (StaticData.ADD_TITLE) { //TODO : Test in query-v3
+
+			if (StaticData.ADD_TITLE) {
 				String titletokens = getNormalizedTitle(title);
 				ArrayList<String> addString = new ArrayList<>();
 				for (String titleToken : titletokens.split(" ")) {
@@ -87,7 +78,7 @@ public class SearchQueryProvider {
 			
 			String queryLine = bugID + "\t" + suggestedQuery;
 			queries.add(queryLine);
-			System.out.println("Log: " + queryLine);
+//			System.out.println("Log: " + queryLine);
 		}
 		return queries;
 	}
@@ -101,15 +92,7 @@ public class SearchQueryProvider {
 			String suggestedKeywords = provider.provideSearchQueriesByTokenScoreMap(scoreKeyList);
 			String suggestedQuery = new String(suggestedKeywords);
 
-//			if (StaticData.ADD_CODE_ELEM) {
-//				String codetokens = getCamelCaseQuery(bugReport);
-//				suggestedQuery += "\t" + codetokens;
-//			}
-//			if (StaticData.ADD_TITLE) {
-//				String titletokens = getNormalizedTitle(title);
-//				suggestedQuery += "\t" + titletokens;
-//			}
-			if (StaticData.ADD_TITLE) { //TODO : Test in query-v3
+			if (StaticData.ADD_TITLE) {
 				String titletokens = getNormalizedTitle(title);
 				ArrayList<String> addString = new ArrayList<>();
 				for (String titleToken : titletokens.split(" ")) {
@@ -122,7 +105,6 @@ public class SearchQueryProvider {
 
 			String queryLine = bugID + "\t" + suggestedQuery;
 			queries.add(queryLine);
-//			System.out.println("Log: " + queryLine);
 		}
 		return queries;
 	}

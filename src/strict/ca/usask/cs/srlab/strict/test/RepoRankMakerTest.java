@@ -43,7 +43,7 @@ public class RepoRankMakerTest {
     @Test
     public void testRepos() {
         ArrayList<String> repos = ContentLoader.getAllLinesOptList("./repos/repos.txt");
-        String resultKey = "TR_1.0_PR_1.0_SR_0.0_STR_0.0_PTR_0.0_10_title_0.5";
+        String resultKey = "TR_0.0_PR_9.0_SR_0.4_STR_1.0_PTR_1.0_10_title_0.5";
         System.out.println(resultKey);
         Boolean addTitle = true;
 

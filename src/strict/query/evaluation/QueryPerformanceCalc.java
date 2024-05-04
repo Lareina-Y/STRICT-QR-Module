@@ -55,7 +55,7 @@ public class QueryPerformanceCalc {
 		// "/query-v3/" + repoName + "/two/" + resultKey
 		// + ".txt";
 		if (useBaseline) {
-			this.approachQueryFile = StaticData.HOME_DIR + "/Baseline/query/query-whole/" + repoName + ".txt";
+			this.approachQueryFile = StaticData.HOME_DIR + "/Lareina/Baseline/query/query-whole/" + repoName + ".txt";
 		}
 
 		if (useHQB) {

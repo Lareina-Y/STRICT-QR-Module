@@ -64,8 +64,6 @@ public class SearchTermProvider {
 		if (scoreKeyList.contains("PTR")){
 			setPositionNetwork(sentences);
 		}
-//		this.wtextGraph = GraphUtility.getWeightedWordNetwork(sentences);
-//		this.wposGraph = GraphUtility.getWeightedPOSNetwork(sentences);
 	}
 
 	public SearchTermProvider(String repository, int bugID, String title, String bugReport) {
